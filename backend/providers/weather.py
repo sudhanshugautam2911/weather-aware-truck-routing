@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import logging
+import re
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta, timezone
 
@@ -71,6 +73,21 @@ def _to_series(block: dict, start: date) -> HourlySeries | None:
     )
 
 
+_BAD_NUMBER = re.compile(r"(?<=[:\[,])\s*-?(?:nan|inf(?:inity)?)\b", re.IGNORECASE)
+
+
+def _parse_json(text: str):
+    """Parse a response, treating stray nan/inf tokens (not valid JSON) as missing values."""
+    try:
+        return json.loads(text, parse_constant=lambda _: None)
+    except ValueError:
+        pass
+    try:
+        return json.loads(_BAD_NUMBER.sub("null", text), parse_constant=lambda _: None)
+    except ValueError:
+        return None
+
+
 def _fetch_chunk(points: list[tuple[float, float]], start: date, end: date, model: str) -> list[HourlySeries | None]:
     data = {
         "latitude": ",".join(f"{lat:.3f}" for lat, _ in points),
@@ -85,16 +102,27 @@ def _fetch_chunk(points: list[tuple[float, float]], start: date, end: date, mode
     if model and model != "best_match":
         data["models"] = model
     base = getattr(settings, "OPEN_METEO_URL", "https://api.open-meteo.com/v1/forecast")
-    resp = request("POST", base, service="weather", data=data, retries=3, backoff_s=1.0)
-    if resp.status_code != 200:
-        reason = ""
-        try:
-            reason = resp.json().get("reason", "")
-        except ValueError:
-            pass
-        log.warning("open-meteo %s: %s", resp.status_code, reason)
-        raise UpstreamError("WEATHER_UNAVAILABLE", "The weather service could not answer this request. Try again in a minute.")
-    body = resp.json()
+    for attempt in range(2):
+        resp = request("POST", base, service="weather", data=data, retries=3, backoff_s=1.0)
+        if resp.status_code != 200:
+            reason = ""
+            try:
+                reason = resp.json().get("reason", "")
+            except ValueError:
+                pass
+            if "no data is available" in reason.lower():
+                # A lone point outside this model's area: no data, the backup model fills it.
+                return [None] * len(points)
+            log.warning("open-meteo %s: %s", resp.status_code, reason)
+            raise UpstreamError(
+                "WEATHER_UNAVAILABLE", "The weather service could not answer this request. Try again in a minute."
+            )
+        body = _parse_json(resp.text)
+        if body is not None:
+            break
+        log.warning("open-meteo sent unreadable JSON (attempt %d): %r", attempt + 1, resp.text[:120])
+    else:
+        raise UpstreamError("WEATHER_BAD_DATA", "The weather service sent unreadable data. Try again in a minute.")
     blocks = body if isinstance(body, list) else [body]
     if len(blocks) != len(points):
         raise UpstreamError("WEATHER_BAD_DATA", "The weather service sent incomplete data. Try again later.")

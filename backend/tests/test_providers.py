@@ -145,3 +145,49 @@ def test_no_model_covers_point_gives_clear_error(monkeypatch, settings):
     with pytest.raises(AppError) as e:
         weather.fetch_hourly([(0.0, 0.0)], start, start)
     assert e.value.code == "NO_WEATHER_COVERAGE"
+
+
+class FakeResp:
+    def __init__(self, status, text):
+        self.status_code = status
+        self.text = text
+
+    def json(self):
+        import json
+
+        return json.loads(self.text)
+
+
+def test_parse_json_turns_stray_nan_into_missing_values():
+    from providers.weather import _parse_json
+
+    assert _parse_json('{"latitude":nan,"v":[1.0,-nan,NaN,inf]}') == {"latitude": None, "v": [1.0, None, None, None]}
+    assert _parse_json("<html>busy</html>") is None
+
+
+def test_lone_point_without_data_is_a_gap_not_an_error(monkeypatch):
+    from datetime import date
+
+    from providers import weather
+
+    monkeypatch.setattr(
+        weather, "request", lambda *a, **k: FakeResp(400, '{"error":true,"reason":"No data is available for this location"}')
+    )
+    assert weather._fetch_chunk([(19.43, -99.13)], date(2026, 10, 11), date(2026, 10, 12), "ncep_nbm_conus") == [None]
+
+
+def test_unreadable_body_is_retried_then_reported_cleanly(monkeypatch):
+    from datetime import date
+
+    from providers import weather
+
+    calls = []
+
+    def fake(*a, **k):
+        calls.append(1)
+        return FakeResp(200, "<html>oops</html>")
+
+    monkeypatch.setattr(weather, "request", fake)
+    with pytest.raises(UpstreamError) as e:
+        weather._fetch_chunk([(40.0, -100.0)], date(2026, 10, 11), date(2026, 10, 12), "best_match")
+    assert e.value.code == "WEATHER_BAD_DATA" and len(calls) == 2

@@ -1,12 +1,12 @@
 """ETA -> forecast hour matching (precipitation is stored at the END of its hour)."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
 from core.forecast import ForecastRangeError, HourlySeries, MissingWeatherError, sample_at
 
-START = datetime(2026, 10, 11, tzinfo=timezone.utc)
+START = datetime(2026, 10, 11, tzinfo=UTC)
 
 
 def series(n=6):

@@ -16,7 +16,7 @@ import io
 import json
 import time
 from collections import Counter
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import httpx
@@ -26,9 +26,30 @@ from core.risk import Risk, classify_rain, classify_wind
 # Airports along major US truck corridors, mixing windy plains, wet coasts,
 # mountain passes and snowy northern routes.
 STATIONS = [
-    "ORD", "DEN", "DFW", "ATL", "SEA", "SLC", "OKC", "AMA", "CYS", "BIS",
-    "MSP", "STL", "MEM", "PHX", "ABQ", "BOS", "PIT", "BUF", "MCI", "OMA",
-    "ICT", "LBB", "RAP", "GTF",
+    "ORD",
+    "DEN",
+    "DFW",
+    "ATL",
+    "SEA",
+    "SLC",
+    "OKC",
+    "AMA",
+    "CYS",
+    "BIS",
+    "MSP",
+    "STL",
+    "MEM",
+    "PHX",
+    "ABQ",
+    "BOS",
+    "PIT",
+    "BUF",
+    "MCI",
+    "OMA",
+    "ICT",
+    "LBB",
+    "RAP",
+    "GTF",
 ]
 KNOTS_TO_MPH = 1.150779
 RAIN_YES = 0.01  # in/hr: "measurable rain"
@@ -39,11 +60,22 @@ client = httpx.Client(timeout=60, headers={"User-Agent": "weather-aware-truck-ro
 def observations(station: str, start: date, end: date):
     """{utc_hour: (wind_mph, rain_in, snowing)} from hourly routine METARs."""
     params = [
-        ("station", station), ("data", "sknt"), ("data", "p01i"), ("data", "wxcodes"),
-        ("year1", start.year), ("month1", start.month), ("day1", start.day),
-        ("year2", end.year), ("month2", end.month), ("day2", end.day),
-        ("tz", "Etc/UTC"), ("format", "onlycomma"), ("latlon", "yes"),
-        ("missing", "M"), ("trace", "0.0001"), ("report_type", "3"),
+        ("station", station),
+        ("data", "sknt"),
+        ("data", "p01i"),
+        ("data", "wxcodes"),
+        ("year1", start.year),
+        ("month1", start.month),
+        ("day1", start.day),
+        ("year2", end.year),
+        ("month2", end.month),
+        ("day2", end.day),
+        ("tz", "Etc/UTC"),
+        ("format", "onlycomma"),
+        ("latlon", "yes"),
+        ("missing", "M"),
+        ("trace", "0.0001"),
+        ("report_type", "3"),
     ]
     r = client.get("https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py", params=params)
     r.raise_for_status()
@@ -52,7 +84,7 @@ def observations(station: str, start: date, end: date):
     for row in rows:
         if row["sknt"] in ("M", "") or row["p01i"] in ("M", ""):
             continue
-        t = datetime.strptime(row["valid"], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+        t = datetime.strptime(row["valid"], "%Y-%m-%d %H:%M").replace(tzinfo=UTC)
         # A report at 13:51 describes the hour ending 13:51: match it to 14:00.
         hour = (t + timedelta(minutes=30)).replace(minute=0)
         wx = row.get("wxcodes", "") or ""
@@ -65,9 +97,14 @@ def forecasts(lat: float, lon: float, start: date, end: date, lead: int, model: 
     """{utc_hour: (wind_mph, rain_in, snow_in)} as forecast `lead` days earlier."""
     v = f"_previous_day{lead}"
     params = {
-        "latitude": lat, "longitude": lon, "start_date": start.isoformat(), "end_date": end.isoformat(),
+        "latitude": lat,
+        "longitude": lon,
+        "start_date": start.isoformat(),
+        "end_date": end.isoformat(),
         "hourly": ",".join(f"{x}{v}" for x in ("wind_speed_10m", "rain", "showers", "snowfall")),
-        "wind_speed_unit": "mph", "precipitation_unit": "inch", "timezone": "GMT",
+        "wind_speed_unit": "mph",
+        "precipitation_unit": "inch",
+        "timezone": "GMT",
     }
     if model != "best_match":
         params["models"] = model
@@ -83,7 +120,7 @@ def forecasts(lat: float, lon: float, start: date, end: date, lead: int, model: 
         w, ra, sh, sn = (h[f"{x}{v}"][i] for x in ("wind_speed_10m", "rain", "showers", "snowfall"))
         if None in (w, ra, sh, sn):
             continue
-        out[datetime.fromisoformat(ts).replace(tzinfo=timezone.utc)] = (w, ra + sh, sn)
+        out[datetime.fromisoformat(ts).replace(tzinfo=UTC)] = (w, ra + sh, sn)
     return out
 
 
@@ -92,7 +129,7 @@ def main() -> None:
     ap.add_argument("--days", type=int, default=30)
     ap.add_argument("--model", default="best_match", help="Open-Meteo model id, e.g. ncep_nbm_conus")
     args = ap.parse_args()
-    end = datetime.now(timezone.utc).date() - timedelta(days=2)
+    end = datetime.now(UTC).date() - timedelta(days=2)
     start = end - timedelta(days=args.days - 1)
 
     observed = {st: observations(st, start, end) for st in STATIONS}
@@ -146,7 +183,9 @@ def main() -> None:
             },
             "rain_yes_no_accuracy_pct": round(100 * sum(o == f for o, f in rain_yes) / n, 1),
             "rain_detection_pct": round(100 * hits / (hits + misses), 1) if hits + misses else None,
-            "rain_false_alarm_pct": round(100 * false_alarms / (hits + false_alarms), 1) if hits + false_alarms else None,
+            "rain_false_alarm_pct": round(100 * false_alarms / (hits + false_alarms), 1)
+            if hits + false_alarms
+            else None,
             "snow_yes_no_accuracy_pct": round(100 * sum(o == f for o, f in snow_yes) / n, 1),
             "snow_hours_observed": sum(o for o, _ in snow_yes),
         }

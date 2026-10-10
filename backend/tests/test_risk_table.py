@@ -12,8 +12,19 @@ L, M, H, S, N = Risk.LOW, Risk.MODERATE, Risk.HIGH, Risk.SEVERE, Risk.NO_TRAVEL
 @pytest.mark.parametrize(
     "mph, expected",
     [
-        (0, L), (24.9, L), (25, M), (30, M), (34.9, M), (35, H), (40, H), (44.9, H),
-        (45, S), (50, S), (54.9, S), (55, N), (80, N),
+        (0, L),
+        (24.9, L),
+        (25, M),
+        (30, M),
+        (34.9, M),
+        (35, H),
+        (40, H),
+        (44.9, H),
+        (45, S),
+        (50, S),
+        (54.9, S),
+        (55, N),
+        (80, N),
     ],
 )
 def test_wind_table(mph, expected):
@@ -23,8 +34,19 @@ def test_wind_table(mph, expected):
 @pytest.mark.parametrize(
     "rate, expected",
     [
-        (0, L), (0.09, L), (0.10, M), (0.2, M), (0.249, M), (0.25, H), (0.4, H), (0.499, H),
-        (0.50, S), (0.75, S), (1.00, S), (1.001, N), (2.0, N),
+        (0, L),
+        (0.09, L),
+        (0.10, M),
+        (0.2, M),
+        (0.249, M),
+        (0.25, H),
+        (0.4, H),
+        (0.499, H),
+        (0.50, S),
+        (0.75, S),
+        (1.00, S),
+        (1.001, N),
+        (2.0, N),
     ],
 )
 def test_rain_table(rate, expected):
@@ -34,7 +56,16 @@ def test_rain_table(rate, expected):
 @pytest.mark.parametrize(
     "rate, expected",
     [
-        (0, L), (0.49, L), (0.5, M), (0.99, M), (1.0, H), (1.99, H), (2.0, S), (3.0, S), (3.01, N), (5, N),
+        (0, L),
+        (0.49, L),
+        (0.5, M),
+        (0.99, M),
+        (1.0, H),
+        (1.99, H),
+        (2.0, S),
+        (3.0, S),
+        (3.01, N),
+        (5, N),
     ],
 )
 def test_snow_table(rate, expected):
@@ -45,13 +76,21 @@ def test_snow_table(rate, expected):
     "mph, load, expected",
     [
         # >= 55 mph is No Travel for any load, including empty.
-        (55, 0, N), (60, 80_000, N),
+        (55, 0, N),
+        (60, 80_000, N),
         # 45-54 mph: > 30,000 lb -> No Travel; exactly 30,000 stays Severe.
-        (45, 30_000, S), (45, 30_001, N), (54.9, 30_001, N), (50, 10_000, S),
+        (45, 30_000, S),
+        (45, 30_001, N),
+        (54.9, 30_001, N),
+        (50, 10_000, S),
         # 35-44 mph: > 40,000 lb -> Severe; exactly 40,000 stays High.
-        (35, 40_000, H), (35, 40_001, S), (44.9, 45_000, S), (40, 30_001, H),
+        (35, 40_000, H),
+        (35, 40_001, S),
+        (44.9, 45_000, S),
+        (40, 30_001, H),
         # Below 35 mph the load never matters.
-        (34.9, 80_000, M), (10, 80_000, L),
+        (34.9, 80_000, M),
+        (10, 80_000, L),
     ],
 )
 def test_load_rules(mph, load, expected):

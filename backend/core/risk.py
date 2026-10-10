@@ -127,9 +127,7 @@ def assess(wind_mph: float, rain_in_hr: float, snow_in_hr: float, load_lb: float
     level = max(wind, rain, snow)
     causes = ()
     if level > Risk.LOW:
-        causes = tuple(
-            name for name, value in (("wind", wind), ("rain", rain), ("snow", snow)) if value == level
-        )
+        causes = tuple(name for name, value in (("wind", wind), ("rain", rain), ("snow", snow)) if value == level)
     return Assessment(
         level=level,
         wind=wind,
@@ -205,7 +203,7 @@ def rank_routes(routes: list[RouteRisk]) -> list[RouteRisk]:
 
 def deciding_rule(best: RouteRisk, runner_up: RouteRisk) -> str | None:
     """Key of the first rule where the best route beat the runner-up (None = full tie)."""
-    for (key, _), a, b in zip(RANKING_RULES, ranking_values(best), ranking_values(runner_up)):
+    for (key, _), a, b in zip(RANKING_RULES, ranking_values(best), ranking_values(runner_up), strict=True):
         if a != b:
             return key
     return None

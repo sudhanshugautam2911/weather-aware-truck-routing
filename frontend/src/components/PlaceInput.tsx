@@ -32,18 +32,15 @@ export function PlaceInput({
 
   // Show the label when the parent sets a place (e.g. the example trip). Typing
   // clears the chosen place, and that must not wipe what the user is typing.
-  useEffect(() => {
+  const [shownValue, setShownValue] = useState(value)
+  if (value !== shownValue) {
+    setShownValue(value)
     if (value) setText(value.label)
-  }, [value])
+  }
 
   useEffect(() => {
-    if (!typed.current) return
     const q = text.trim()
-    if (q.length < 3) {
-      setResults([])
-      setStatus('idle')
-      return
-    }
+    if (!typed.current || q.length < 3) return
     const ctrl = new AbortController()
     const timer = setTimeout(async () => {
       setStatus('loading')
@@ -117,6 +114,10 @@ export function PlaceInput({
         onChange={(e) => {
           typed.current = true
           setText(e.target.value)
+          if (e.target.value.trim().length < 3) {
+            setResults([])
+            setStatus('idle')
+          }
           setOpen(true)
           if (value) onChange(null)
         }}

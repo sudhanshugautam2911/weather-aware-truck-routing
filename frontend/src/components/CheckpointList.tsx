@@ -1,21 +1,7 @@
+import { causeLine, weatherLine } from '../lib/explain'
 import { formatDayTime, formatNumber } from '../lib/format'
-import { riskLabel } from '../lib/risk'
-import type { Checkpoint, RoutePlan } from '../types'
+import type { RoutePlan } from '../types'
 import { RiskChip } from './RiskChip'
-
-export function weatherLine(cp: Checkpoint) {
-  const w = cp.weather
-  const gust = w.gust_mph != null ? ` (gusts ${formatNumber(w.gust_mph)})` : ''
-  return `Wind ${formatNumber(w.wind_mph)} mph${gust}, rain ${formatNumber(w.rain_in_hr, 2)} in/hr, snow ${formatNumber(w.snow_in_hr, 2)} in/hr`
-}
-
-export function causeLine(cp: Checkpoint, loadLb: number) {
-  if (cp.risk.level === 'low') return ''
-  const parts = cp.risk.causes.map((c) => c[0].toUpperCase() + c.slice(1))
-  let s = `${riskLabel(cp.risk.level)} because of ${parts.join(' and ').toLowerCase()}`
-  if (cp.risk.load_raised) s += `, raised by the ${formatNumber(loadLb)} lb load`
-  return s + '.'
-}
 
 export function CheckpointList({
   route,

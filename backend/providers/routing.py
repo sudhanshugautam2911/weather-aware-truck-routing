@@ -7,8 +7,9 @@ development only: car speeds, no traffic, and no weight limits.
 
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from django.conf import settings
 
@@ -69,8 +70,8 @@ class TomTomRouter(Router):
             ("extendedRouteRepresentation", "travelTime"),
             ("maxAlternatives", str(max_alternatives if len(stops) == 2 else 0)),
         ]
-        if depart_utc > datetime.now(timezone.utc):
-            params.append(("departAt", depart_utc.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")))
+        if depart_utc > datetime.now(UTC):
+            params.append(("departAt", depart_utc.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")))
         resp = request("GET", f"{self.BASE}/{locations}/json", service="routing", params=params)
         if resp.status_code in (401, 403):
             raise UpstreamError(
@@ -79,19 +80,21 @@ class TomTomRouter(Router):
             )
         if resp.status_code == 400:
             detail = ""
-            try:
+            with contextlib.suppress(ValueError):
                 detail = resp.json().get("detailedError", {}).get("message", "")
-            except ValueError:
-                pass
             if "NO_ROUTE" in detail.upper() or "not connected" in detail.lower() or "near a road" in detail.lower():
                 raise AppError(
                     "NO_ROUTE",
                     "No truck route connects these two places. Check that both are reachable by road.",
                     status=422,
                 )
-            raise UpstreamError("ROUTING_BAD_REQUEST", "The route service could not process this trip. Try different places.")
+            raise UpstreamError(
+                "ROUTING_BAD_REQUEST", "The route service could not process this trip. Try different places."
+            )
         if resp.status_code != 200:
-            raise UpstreamError("ROUTING_UNAVAILABLE", "The route service is unavailable right now. Try again in a minute.")
+            raise UpstreamError(
+                "ROUTING_UNAVAILABLE", "The route service is unavailable right now. Try again in a minute."
+            )
         return [self._parse(r) for r in resp.json().get("routes", [])]
 
     @staticmethod
@@ -137,10 +140,8 @@ class OsrmRouter(Router):
         }
         resp = request("GET", f"{self.BASE}/{coords}", service="routing", params=params)
         body = {}
-        try:
+        with contextlib.suppress(ValueError):
             body = resp.json()
-        except ValueError:
-            pass
         if body.get("code") in ("NoRoute", "NoSegment"):
             raise AppError(
                 "NO_ROUTE",
@@ -148,7 +149,9 @@ class OsrmRouter(Router):
                 status=422,
             )
         if resp.status_code != 200 or body.get("code") != "Ok":
-            raise UpstreamError("ROUTING_UNAVAILABLE", "The route service is unavailable right now. Try again in a minute.")
+            raise UpstreamError(
+                "ROUTING_UNAVAILABLE", "The route service is unavailable right now. Try again in a minute."
+            )
         return [self._parse(r) for r in body["routes"]]
 
     @staticmethod
@@ -163,7 +166,7 @@ class OsrmRouter(Router):
             dur.extend(ann.get("duration", []))
         if len(dist) == len(lats) - 1 == len(dur):
             cum_m, cum_s = [0.0], [0.0]
-            for d, t in zip(dist, dur):
+            for d, t in zip(dist, dur, strict=True):
                 cum_m.append(cum_m[-1] + d)
                 cum_s.append(cum_s[-1] + t)
         else:

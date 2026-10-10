@@ -1,35 +1,8 @@
-import { useMemo } from 'react'
+import { useState } from 'react'
 import { timeZoneName, toLocalInput } from '../lib/format'
+import type { FieldErrors } from '../lib/validate'
 import type { Place, TripInput } from '../types'
 import { PlaceInput } from './PlaceInput'
-
-export type FieldErrors = Partial<Record<'origin' | 'destination' | 'departure' | 'load_lb' | 'interval_mi', string>>
-
-const MAX_LOAD = 80_000
-
-export function validate(t: TripInput): FieldErrors {
-  const e: FieldErrors = {}
-  if (!t.origin) e.origin = 'Choose a starting point from the suggestions.'
-  if (!t.destination) e.destination = 'Choose a destination from the suggestions.'
-  if (t.origin && t.destination && t.origin.label === t.destination.label) {
-    e.destination = 'Destination must be different from the starting point.'
-  }
-  if (!t.departure) {
-    e.departure = 'Pick a departure date and time.'
-  } else {
-    const dep = new Date(t.departure).getTime()
-    const now = Date.now()
-    if (Number.isNaN(dep)) e.departure = 'Enter a valid date and time.'
-    else if (dep < now - 15 * 60_000) e.departure = 'This time has already passed. Pick a time from now onward.'
-    else if (dep > now + 7 * 86_400_000) e.departure = 'Pick a departure within the next 7 days.'
-  }
-  const load = t.load_lb.trim() === '' ? NaN : Number(t.load_lb.replace(/,/g, ''))
-  if (t.load_lb.trim() === '') e.load_lb = 'Enter the load weight in pounds.'
-  else if (Number.isNaN(load)) e.load_lb = 'Load weight must be a number of pounds.'
-  else if (load < 0) e.load_lb = 'Load weight cannot be negative.'
-  else if (load > MAX_LOAD) e.load_lb = 'Load weight must be 80,000 lb or less.'
-  return e
-}
 
 export function TripForm({
   value,
@@ -45,11 +18,12 @@ export function TripForm({
   loading: boolean
 }) {
   const set = <K extends keyof TripInput>(k: K, v: TripInput[K]) => onChange({ ...value, [k]: v })
-  const limits = useMemo(() => {
-    const now = new Date()
-    return { min: toLocalInput(new Date(now.getTime() - 15 * 60_000)), max: toLocalInput(new Date(now.getTime() + 7 * 86_400_000 - 15 * 60_000)) }
-  }, [])
-  const tz = useMemo(timeZoneName, [])
+  // Allowed departure range, fixed when the form first appears.
+  const [limits] = useState(() => {
+    const now = Date.now()
+    return { min: toLocalInput(new Date(now - 15 * 60_000)), max: toLocalInput(new Date(now + 7 * 86_400_000 - 15 * 60_000)) }
+  })
+  const [tz] = useState(timeZoneName)
 
   return (
     <form
@@ -88,6 +62,8 @@ export function TripForm({
         <label htmlFor="departure">Departure ({tz})</label>
         <input
           id="departure"
+          name="departure"
+          autoComplete="off"
           className="input"
           type="datetime-local"
           value={value.departure}
@@ -111,6 +87,8 @@ export function TripForm({
           <div className="input-suffix">
             <input
               id="load"
+              name="load_lb"
+              autoComplete="off"
               className="input num"
               inputMode="numeric"
               placeholder="e.g. 38000"

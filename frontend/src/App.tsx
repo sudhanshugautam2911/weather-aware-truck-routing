@@ -6,9 +6,11 @@ import { Notice } from './components/Notice'
 import { RankingTable } from './components/RankingTable'
 import { RouteList } from './components/RouteList'
 import { TimeBar } from './components/TimeBar'
-import { TripForm, validate, type FieldErrors } from './components/TripForm'
+import { TripForm } from './components/TripForm'
 import { Verdict } from './components/Verdict'
+import { verdict } from './lib/explain'
 import { formatDayTime, formatNumber, toLocalInput } from './lib/format'
+import { validate, type FieldErrors } from './lib/validate'
 import type { HeatmapResponse, PlanResponse, TripInput } from './types'
 
 const EXAMPLE: Pick<TripInput, 'origin' | 'destination' | 'load_lb'> = {
@@ -245,6 +247,10 @@ export default function App() {
           )}
         </footer>
       </aside>
+
+      <p className="visually-hidden" aria-live="polite">
+        {loading ? 'Checking routes and weather.' : best && plan && !planError ? verdict(plan, best).headline : ''}
+      </p>
 
       <main className="map-area" aria-label="Map">
         <div className="map-canvas">

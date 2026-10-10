@@ -1,221 +1,160 @@
 # Weather-Aware Truck Routing
 
-A React + Django web app that helps a truck driver pick the safest route. It finds three routes, checks the
-forecast **for the hour the truck will actually reach each checkpoint**, scores weather risk with the load
-weight in mind, and recommends the route with the least risk, using travel time as the tie-breaker.
+**Live app:** https://weather-aware-truck-routing-xi.vercel.app · **Walkthrough:** _Loom link_
 
-**Live app:** _add Vercel URL here_ · **Walkthrough:** _add Loom URL here_
+React + Django. Three truck routes, weather checked at each checkpoint **for the hour the truck gets there**,
+risk scored with the load rules, and the safest route recommended with a plain-language reason.
+
+**Try it:** click **"Fill in an example trip"**, then **Compare routes**. To see bad weather, plan a trip through
+an active storm (calm days are all green — that is the forecast, not a bug).
 
 ---
 
-## What it does
+## Brief → implementation
 
-1. You enter origin, destination, departure time and load weight, and pick how often to check weather (every 10, 25 or 50 miles).
-2. The backend gets **3 route options** from a truck routing API.
-3. It places **checkpoints** along each route and works out the **ETA** at each one.
-4. It fetches the **hourly forecast at each checkpoint for that ETA** and applies the risk table and load rules.
-5. It ranks the routes and **explains the recommendation** in plain words ("Route A has 12 mi of Severe weather").
-6. The map shows all routes, colour-coded checkpoints with ETAs and weather, and a **weather heatmap over the trip
-   corridor with a 0–48 h slider**. A marker on each route shows where that truck would be at the chosen hour.
+| Brief | Where / how |
+|---|---|
+| Origin, destination, departure, load | Form with type-ahead place search (TomTom), departure up to 7 days ahead, load in lb |
+| 3 route options from a routing API | TomTom **truck** routing (uses the load weight, 65 mph truck speed). If it returns fewer than 3, we ask again through a point beside the main road |
+| Weather every 10 / 25 / 50 mi at the truck's ETA | User picks the spacing; each checkpoint gets the forecast **for its own arrival hour** |
+| Risk table + load rules | [`backend/core/risk.py`](backend/core/risk.py), pure Python, 100% branch-covered |
+| Recommend: Severe → High → avg risk → time | Same order, plus "fewest No Travel miles" checked first; shown as a "Why this route?" table |
+| Routes, checkpoints, risk, ETAs, summaries on a map | All 3 routes with risk-coloured checkpoints, a summary label per route, ETA on hover |
+| Heatmap with 0–48 h slider | ~150 corridor cells × 49 hours loaded once; the slider only repaints (instant). All / Wind / Rain / Snow views |
 
-## How a trip is computed
+## Architecture
 
-```
-origin, destination, departure, load
-        │
-        ▼
-TomTom truck routing ──► 3 routes (polyline + distance and drive time along it)
-        │                 fewer than 3? ask again through a point beside the main road
-        ▼
-checkpoints every N miles + destination ──► ETA = departure + drive time to that point
-        │
-        ▼
-hourly forecast at each checkpoint for the hour of its ETA
-        (WeatherAPI.com; Open-Meteo NBM fills anything it lacks or takes over if it fails)
-        │
-        ▼
-risk = worst of wind (after load rules), rain, snow
-        │
-        ▼
-rank routes: No Travel mi → Severe mi → High mi → average risk → travel time
+```mermaid
+flowchart LR
+    U["Browser<br/>React + MapLibre"] -->|"/api/plan<br/>/api/heatmap<br/>/api/geocode"| D["Django API<br/>(Vercel Python function)"]
+    D --> T["TomTom<br/>truck routes + place search"]
+    D --> W["Weather source chain"]
+    W --> W1["First: WeatherAPI.com"]
+    W --> W2["Then: Open-Meteo NBM<br/>fills gaps / fallback"]
+    W --> W3["Last: Open-Meteo global<br/>outside the US"]
+    D <--> C[("Cache 1 h<br/>memory or Redis")]
+    U --> M["OpenFreeMap tiles"]
 ```
 
-## Risk rules (from the brief)
+One Vercel project serves both: the React build as static files and Django under `/api`. API keys stay on the server.
 
-| Condition | Low | Moderate | High | Severe | No Travel |
-|---|---|---|---|---|---|
-| Wind | < 25 mph | 25–34 | 35–44 | 45–54 | ≥ 55 |
-| Rain | < 0.10 in/hr | 0.10–0.25 | 0.25–0.50 | 0.50–1.00 | > 1.00 |
-| Snow | < 0.5 in/hr | 0.5–1.0 | 1.0–2.0 | 2.0–3.0 | > 3.0 |
+## How a trip is planned
 
-Load rules: ≥ 55 mph is No Travel for any load. 45–54 mph with more than 30,000 lb is No Travel. 35–44 mph with more than 40,000 lb is Severe.
+```mermaid
+sequenceDiagram
+    participant UI as Browser
+    participant API as Django
+    participant R as TomTom
+    participant WX as Weather chain
+    UI->>API: POST /api/plan (places, departure, load, spacing)
+    API->>R: truck route + 2 alternatives
+    R-->>API: road shape with distance + drive time along it
+    API->>API: checkpoints every N mi, ETA = departure + drive time
+    API->>WX: hourly forecast at every checkpoint
+    WX-->>API: wind mph, rain in/hr, snow in/hr (UTC hours)
+    API->>API: risk per checkpoint, miles per level, rank routes
+    API-->>UI: routes, checkpoints, recommendation, reasons
+    UI->>API: POST /api/heatmap (route shapes)
+    API-->>UI: corridor cells × 49 hours
+```
 
-All of this lives in one small pure-Python module, [`backend/core/risk.py`](backend/core/risk.py), with no Django or network code in it.
+## Risk and recommendation
 
-### Decisions where the brief is open
+```mermaid
+flowchart TD
+    A["Forecast at checkpoint ETA"] --> B["Wind level<br/>then load rules can raise it"]
+    A --> C["Rain level"]
+    A --> D["Snow level"]
+    B --> E{"Checkpoint risk =<br/>worst of the three"}
+    C --> E
+    D --> E
+    E --> F["Each checkpoint owns the road<br/>halfway to its neighbours"]
+    F --> G["Miles per level for each route"]
+    G --> H["Rank: No Travel mi, Severe mi, High mi,<br/>average risk, travel time"]
+```
 
-| Question | Decision | Why |
-|---|---|---|
-| Edges overlap (rain 0.25 is in Moderate *and* High) | Lower bound is inclusive: 0.25 → High. The top of rain/snow follows the brief's "> 1.00" / "> 3.0", so 1.00 is still Severe | One clear rule, applied the same way everywhere |
-| No Travel isn't in the ranking rules | Ranked first: fewest **No Travel** miles, then the brief's four rules | A route you must not drive can never beat one you can |
-| "Average risk" | Low 0 … No Travel 4, averaged **by miles** | Long stretches count more than short ones |
-| Miles at each level | Each checkpoint covers the road halfway to its neighbours | Miles add up exactly to the route length |
-| Which forecast hour for an ETA | Wind: the nearest hour. Rain/snow: the hour that contains the ETA | Open-Meteo stores rain/snow at the **end** of each hour (14:00 = 13:00–14:00), so 13:40 uses 14:00 |
-| Rain | Open-Meteo: `rain + showers`. WeatherAPI: total precipitation minus the water in its snow (10:1) | Open-Meteo's `rain` alone leaves out shower rain; WeatherAPI's total includes melted snow |
-| Weather source | WeatherAPI.com first, then Open-Meteo NBM, then Open-Meteo global | WeatherAPI has no per-minute limit, so reviewers never see "too many requests". Each later source only fills hours or places the earlier one lacks |
-| Wind | Sustained 10 m wind for the rules; gusts shown as extra info | The table says "wind"; sustained is the standard measure |
-| Checkpoint spacing | User picks 10 / 25 / 50 mi (default 25) | The brief lists all three |
-| Heatmap hour 0 | The departure hour | The slider follows the trip, not the clock |
-| Departure window | From now up to 7 days ahead | Forecasts further out aren't reliable enough to judge risk |
-| Truck weight for routing | Load + 35,000 lb typical empty tractor-trailer, sent to TomTom | TomTom needs gross weight to avoid weight-limited roads |
-| Truck speed | Capped at 65 mph (`TRUCK_MAX_SPEED_MPH`) | Tested: without a cap, TomTom's truck mode gave exactly the car times (73 mph average Chicago → Denver). Fleet trucks are usually governed near 65 mph; with the cap, trips average 63–64 mph |
+**Decisions where the brief is open**
+
+| Question | Decision |
+|---|---|
+| Edges overlap (rain 0.25 is in Moderate *and* High) | Lower bound inclusive → 0.25 is High. Top of rain/snow follows "> 1.00" / "> 3.0" |
+| No Travel isn't in the ranking | Checked first: a route you must not drive can't win |
+| "Average risk" | Low 0 … No Travel 4, averaged by miles |
+| Which forecast hour | Wind: nearest hour. Rain/snow: the hour containing the ETA (stored at the hour's end, so 13:40 → 14:00) |
+| Gross weight for routing | Load + 35,000 lb empty tractor-trailer |
+| Truck speed | Capped at 65 mph — without it TomTom's truck mode returned exactly car times |
+| Heatmap hour 0 | The departure hour |
 
 ## Accuracy
 
-Accuracy has two parts, so it is reported in two parts.
+**Our logic — proven by tests.** 132 backend tests (risk table cell by cell and every edge, load rules incl. exactly
+30,000 / 40,000 lb, 15,000+ random-input checks, ranking against hand-worked cases, checkpoint geometry, hour matching,
+API errors) + 9 frontend tests. Risk engine: **100% branch coverage**. Linters (ruff, oxlint): clean.
 
-### 1. Our logic: proven by tests
-
-| Check | Result |
-|---|---|
-| Every cell and edge of the risk table and load rules (incl. exactly 30,000 / 40,000 lb) | All pass |
-| Random-input rules (Hypothesis, 15,000+ cases): more wind or a heavier load never lowers risk; final risk = worst condition | All pass |
-| Route ranking against hand-worked examples, ties at every rule, floating-point noise | All pass |
-| Checkpoints: exact spacing, on the route, ETA at constant speed, **miles add up exactly** for random route lengths | All pass |
-| ETA → forecast-hour matching, time zones, gaps in data | All pass |
-| API: validation messages, upstream failures, end-to-end plan with fake providers | All pass |
-| **Total** | **132 backend tests, 100% branch coverage of the risk engine** (`core/` overall 95%) |
-
-### 2. Outside data: measured
-
-**Forecast backtest** ([`backend/accuracy/backtest.py`](backend/accuracy/backtest.py)): what the model predicted 1 day
-earlier vs. what 24 airport weather stations actually observed, hour by hour, over 30 days (16,655 hours, Sep 9 – Oct 8 2026).
-The same backtest picked the forecast model:
-
-| 1 day ahead | Default (GFS/HRRR) | **NBM (used)** |
-|---|---|---|
-| Wind: average error | 3.01 mph | **2.73 mph** |
-| Wind: within ±5 mph | 82.4% | **85.9%** |
-| Wind: hours that really were Moderate, forecast as Moderate | 17.8% | **44.6%** |
-| Rain: hours with rain that the forecast caught | 36% | **72%** |
-| Rain: forecast rain hours that stayed dry (false alarms) | 53% | 69% |
-
-NBM catches twice as many rainy hours at the cost of more false alarms. For a safety tool, a missed storm is worse than a
-cautious warning, so the app uses NBM, with the global model filling any gaps (points outside the lower 48 states).
-
-Honest limits of the backtest:
-- Most hours were calm, so "overall match" (~99%) is easy. The per-level numbers above are the meaningful ones.
-- Rain at an exact place and hour is hard to forecast. Showers are often a little early or late, or a few miles off.
-- No snow fell in this 30-day window, and stations don't measure snowfall per hour, so snow was not tested in inches.
-
-**Weather source used by the app.** The backtest above chose NBM as the most accurate model, and NBM stays in
-the chain. For a public demo, though, reliability matters too: Open-Meteo's free tier allows 600 locations per minute,
-and a single trip with its heatmap can use ~300–450. So the app asks **WeatherAPI.com** first (no per-minute limit,
-~1.5 s per trip) and falls back to Open-Meteo NBM automatically. Checks on WeatherAPI:
-- Wind vs. NBM at 20 US places × 4 hours: **2.9 mph average difference, same risk level at 100%** (calm day).
-- Hour alignment: on the 12 wettest US points, WeatherAPI's hourly precipitation matches NBM's best at **zero
-  shift** (correlation 0.42 vs 0.39 / 0.40 at ±1 h), so both sources use the same "value at the end of its hour" rule.
-- WeatherAPI doesn't publish past forecasts, so it can't be backtested the way NBM was. That is the trade-off.
-
-**Live checks** ([`backend/accuracy/checks.py`](backend/accuracy/checks.py), 4 long US trips, TomTom truck routing):
+**Outside data — measured** ([`backend/accuracy/`](backend/accuracy/), results in `accuracy/results/`):
 
 | Check | Result |
 |---|---|
-| Our checkpoint ETA vs. TomTom's own time for a trip ending at that checkpoint | **0.31 min average difference (0.08%)** over 10 checkpoints 200–770 miles in. Two more were skipped because TomTom's direct trip used a different road, so the times weren't comparable |
-| Our wind vs. the US National Weather Service forecast at the same checkpoint and hour | **1.2 mph average difference, same risk level at 99.8%** of 409 checkpoints (NBM is the NWS's own blend, so this mainly confirms we read the right place, hour and units) |
-| Same recommendation at 10, 25 and 50 mi checkpoint spacing | 4 of 4 trips on this run. On an earlier run with scattered showers (Dallas → Atlanta), coarse spacing changed the pick, so **10 mi is the safest choice when weather is patchy** |
+| Our checkpoint ETA vs. TomTom's own time to that point | **0.31 min** average difference (0.08%) |
+| Our wind vs. US National Weather Service, same place + hour | **1.2 mph** average, same risk level at **99.8%** of 409 checkpoints |
+| Forecast model choice — 30-day backtest vs. 24 airport stations (16,655 hours, 1 day ahead) | NBM beat the default model: wind error **2.73 vs 3.01 mph**, rainy hours caught **72% vs 36%** (more false alarms: 69% vs 53%) |
+| WeatherAPI vs. NBM, same place + hour | **2.9 mph** average, same risk level at 100% (calm day); hourly rain aligned at zero shift |
 
-Results are saved in [`backend/accuracy/results/`](backend/accuracy/results/).
+```mermaid
+flowchart LR
+    Q{"Need weather for<br/>point P, hour H"} --> A1["WeatherAPI.com<br/>no per-minute limit"]
+    A1 -->|"missing or failed"| A2["Open-Meteo NBM<br/>best in backtest"]
+    A2 -->|"outside NBM area"| A3["Open-Meteo global"]
+    A3 -->|"still missing"| X["Clear error to the user<br/>(never silently 'Low')"]
+```
 
-### Safeguards in the code
-- **Units are checked** on every weather response (mph and inch); anything else is rejected rather than silently mixed in.
-- **All time maths is in UTC**; times are converted to the viewer's zone only for display.
-- **Missing forecast data never becomes "Low risk"**: the user gets a clear error instead.
+Why WeatherAPI first: Open-Meteo's free tier allows 600 locations per minute, and one trip with its heatmap uses
+~300–450, so a reviewer clicking quickly could hit it. WeatherAPI has no per-minute limit. The trade-off: it doesn't
+publish past forecasts, so only NBM could be backtested.
 
-## Tech stack
+Safeguards: units are checked on every response (mph / inch), all time maths is in UTC, missing data is an error
+rather than "Low", and invalid responses are retried or handed to the next source.
 
-| Part | Choice |
-|---|---|
-| Backend | Python 3.12+, Django 6.1, Django REST Framework, httpx |
-| Frontend | React 19, TypeScript, Vite 8, MapLibre GL (WebGL map) via react-map-gl |
-| Routing + place search | TomTom (truck profile with weight). Without a key, a free demo router (OSRM) and geocoder (Photon) are used so the app still runs |
-| Weather | WeatherAPI.com (free key) first; Open-Meteo NBM (no key) fills gaps and is the automatic fallback |
-| Map tiles | OpenFreeMap (no key) |
-| Database | None. Nothing is stored. Forecasts are cached for 1 hour (in memory, or Redis if `REDIS_URL` is set) |
-| Hosting | Vercel: static frontend + Django as a Python function, one domain |
-
-### Why the slider is smooth
-The heatmap loads once: about 200 corridor cells × 49 hours. Every hour's value is stored on each cell, so moving the
-slider only changes **which value the map reads** (a GPU paint update). There is no network call and no data re-upload.
-Cells snap to a fixed grid, so nearby trips share cached forecasts.
-
-## Project layout
+## Code map
 
 ```
 backend/
-  core/        risk rules, route geometry, ETA→forecast matching   (pure Python, fully tested)
-  providers/   TomTom / OSRM routing, place search, Open-Meteo client (chunking, retries, cache, unit checks)
+  core/        risk rules, ranking, route geometry, ETA → forecast hour    (pure Python)
+  providers/   TomTom / OSRM routing, place search, weather source chain, cache
   api/         Django REST endpoints + trip planning service
-  accuracy/    backtest and live checks; results/ holds the numbers above
+  accuracy/    backtest + live checks, saved results
   tests/       132 tests
-frontend/
-  src/components/   form, place search, results, ranking table, map, time slider
-  src/lib/          formatting, plain-language explanations, geometry
-api/index.py   Vercel entry point for Django
-vercel.json    build + routing for one-domain deploy
+frontend/src/
+  components/  form, place search, results, ranking table, map, time slider
+  lib/         validation, formatting, plain-language explanations, geometry
+api/index.py   Vercel entry point · vercel.json   build + routing
 ```
-
-## API
-
-| Endpoint | Purpose |
-|---|---|
-| `GET /api/health` | Status and which providers are active |
-| `GET /api/geocode?q=dallas` | Place suggestions |
-| `POST /api/plan` | `{origin, destination, departure, load_lb, interval_mi}` → routes, checkpoints, risk, recommendation |
-| `POST /api/heatmap` | `{lines, departure, load_lb}` → corridor cells × 49 hourly values |
-
-Errors always look like `{"error": {"code", "message", "field?"}}`. The message is written for the driver, and `field`
-tells the form which input to highlight.
 
 ## Run locally
 
 ```bash
-# backend
-cd backend
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
-cp .env.example .env            # add TOMTOM_API_KEY (optional; demo routing is used without it)
+cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+cp .env.example .env    # TOMTOM_API_KEY, WEATHERAPI_KEY (without keys: free demo routing + Open-Meteo)
 .venv/bin/python manage.py runserver 8000
-
-# frontend (second terminal)
-cd frontend
-npm install
-npm run dev                     # http://localhost:5173, proxies /api to :8000
 ```
-
-Tests:
 
 ```bash
-cd backend && .venv/bin/python -m pytest tests --cov=core --cov-branch
-cd frontend && npm test
+cd frontend && npm install && npm run dev    # http://localhost:5173 (proxies /api to :8000)
 ```
 
-Accuracy scripts (they call real services and take a few minutes):
+Tests and linters:
 
 ```bash
-cd backend && .venv/bin/python -m accuracy.backtest --days 30 --model ncep_nbm_conus
-cd backend && .venv/bin/python -m accuracy.checks
+cd backend && .venv/bin/python -m pytest tests --cov=core --cov-branch && .venv/bin/ruff check .
+cd frontend && npm test && npx oxlint src
 ```
 
-## Deploy (Vercel)
-
-1. Import the GitHub repo in Vercel (framework preset: **Other**; `vercel.json` sets the build).
-2. Environment variables: `TOMTOM_API_KEY`, `WEATHERAPI_KEY`, `DJANGO_SECRET_KEY` (any long random string), `DJANGO_DEBUG=0`,
-   optional `REDIS_URL` (Upstash, free) so all function instances share the forecast cache.
-3. Deploy. The frontend is served from `frontend/dist`, and `/api/*` goes to the Django function.
+**Deploy (Vercel):** import the repo (preset "Other"), set `TOMTOM_API_KEY`, `WEATHERAPI_KEY`, `DJANGO_SECRET_KEY`,
+`DJANGO_DEBUG=0` (optional `REDIS_URL`), deploy.
 
 ## Known limits
 
-- Forecasts are forecasts: see the backtest for how often they are right at an exact place and hour.
-- "Average risk" is averaged over miles, so on a much longer route the same bad stretch counts for less.
-  This follows the brief's wording, and it only matters when Severe and High miles are already tied.
-- Driver rest breaks (hours-of-service rules) are not modelled, so ETAs assume continuous driving.
+- Forecasts can be wrong at an exact place and hour; the backtest shows how often.
+- Average risk is per mile, so a much longer route dilutes the same bad stretch (only matters when Severe and High tie).
+- Driver rest breaks aren't modelled; ETAs assume continuous driving.
+- Times are shown in the viewer's time zone.

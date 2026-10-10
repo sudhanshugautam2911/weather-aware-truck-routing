@@ -1,6 +1,6 @@
 """Parsing of provider responses, including the unit guard and TomTom progress anchors."""
 
-from datetime import date
+from datetime import UTC, date
 
 import pytest
 
@@ -84,13 +84,13 @@ def test_osrm_annotations_build_cumulative_values():
 
 
 def test_backup_model_fills_only_missing_hours(monkeypatch, settings):
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from core.forecast import HourlySeries
     from providers import weather
 
     settings.WEATHER_MODELS = "primary,backup"
-    start = datetime(2026, 10, 11, tzinfo=timezone.utc)
+    start = datetime(2026, 10, 11, tzinfo=UTC)
 
     def fake(points, s, e, model):
         val = 5.0 if model == "primary" else 9.0
@@ -107,13 +107,13 @@ def test_backup_model_fills_only_missing_hours(monkeypatch, settings):
 
 def test_point_outside_primary_model_uses_backup(monkeypatch, settings):
     """NBM returns an empty block outside the lower 48; the backup model must take over."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from core.forecast import HourlySeries
     from providers import weather
 
     settings.WEATHER_MODELS = "primary,backup"
-    start = datetime(2026, 10, 11, tzinfo=timezone.utc)
+    start = datetime(2026, 10, 11, tzinfo=UTC)
 
     def fake(points, s, e, model):
         if model == "primary":
@@ -134,14 +134,14 @@ def test_empty_open_meteo_block_means_no_data():
 
 
 def test_no_model_covers_point_gives_clear_error(monkeypatch, settings):
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from core.errors import AppError
     from providers import weather
 
     settings.WEATHER_MODELS = "primary,backup"
     monkeypatch.setattr(weather, "_fetch_model", lambda points, s, e, m: {p: None for p in points})
-    start = datetime(2026, 10, 11, tzinfo=timezone.utc)
+    start = datetime(2026, 10, 11, tzinfo=UTC)
     with pytest.raises(AppError) as e:
         weather.fetch_hourly([(0.0, 0.0)], start, start)
     assert e.value.code == "NO_WEATHER_COVERAGE"
@@ -171,7 +171,9 @@ def test_lone_point_without_data_is_a_gap_not_an_error(monkeypatch):
     from providers import weather
 
     monkeypatch.setattr(
-        weather, "request", lambda *a, **k: FakeResp(400, '{"error":true,"reason":"No data is available for this location"}')
+        weather,
+        "request",
+        lambda *a, **k: FakeResp(400, '{"error":true,"reason":"No data is available for this location"}'),
     )
     assert weather._fetch_chunk([(19.43, -99.13)], date(2026, 10, 11), date(2026, 10, 12), "ncep_nbm_conus") == [None]
 

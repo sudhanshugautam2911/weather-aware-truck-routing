@@ -1,6 +1,6 @@
 """A4: checkpoint placement, ETA interpolation and mileage bookkeeping."""
 
-import math
+from itertools import pairwise
 
 import pytest
 from hypothesis import given, settings
@@ -31,7 +31,7 @@ def test_spacing_and_endpoints(interval):
     spots = place_checkpoints(line, interval * METERS_PER_MILE)
     assert spots[0].distance_m == 0
     assert spots[-1].distance_m == pytest.approx(line.length_m)
-    gaps = [b.distance_m - a.distance_m for a, b in zip(spots, spots[1:])]
+    gaps = [b.distance_m - a.distance_m for a, b in pairwise(spots)]
     assert all(g == pytest.approx(interval * METERS_PER_MILE) for g in gaps[:-1])
     assert 0 < gaps[-1] <= interval * METERS_PER_MILE + 1e-6
 
@@ -76,7 +76,7 @@ def test_fill_between_anchors_reproduces_provider_values():
     assert cum_s[2] == pytest.approx(100) and cum_s[4] == pytest.approx(400)
     # Between anchors, distance is spread by geometry: point 3 is 1/3 of the way from 2 to 4.
     assert cum_m[3] == pytest.approx(2_500 + 3_500 / 3, rel=1e-6)
-    assert all(b >= a for a, b in zip(cum_m, cum_m[1:]))
+    assert all(b >= a for a, b in pairwise(cum_m))
 
 
 def test_simplify_keeps_corners_and_ends():

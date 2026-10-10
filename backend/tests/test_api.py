@@ -1,6 +1,6 @@
 """End-to-end API behaviour with fake routing and weather providers."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from rest_framework.test import APIClient
@@ -40,10 +40,10 @@ def fake_weather(stormy_lon=None, wind=10.0):
 
     def fetch(points, start, end, with_sources=False):
         start_h = start.replace(minute=0, second=0, microsecond=0)
-        start_h = datetime(start_h.year, start_h.month, start_h.day, tzinfo=timezone.utc)
+        start_h = datetime(start_h.year, start_h.month, start_h.day, tzinfo=UTC)
         n = int((end - start_h).total_seconds() // 3600) + 30
         out = []
-        for lat, lon in points:
+        for _lat, lon in points:
             w = 50.0 if stormy_lon is not None and abs(lon - stormy_lon) < 1e-6 else wind
             out.append(HourlySeries(start_h, [w] * n, [w + 5] * n, [0.0] * n, [0.0] * n))
         return (out, ["fake"]) if with_sources else out
@@ -61,7 +61,7 @@ def body():
     return {
         "origin": {"label": "Oklahoma City, OK", "lat": 35.0, "lon": -97.0},
         "destination": {"label": "Kansas City, MO", "lat": 39.3, "lon": -97.0},
-        "departure": (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat(),
+        "departure": (datetime.now(UTC) + timedelta(hours=2)).isoformat(),
         "load_lb": 35_000,
         "interval_mi": 25,
     }
@@ -121,7 +121,7 @@ def test_eta_checkpoint_times(client, body, monkeypatch):
     "patch, field, code",
     [
         ({"departure": "2020-01-01T00:00:00Z"}, "departure", "DEPARTURE_IN_PAST"),
-        ({"departure": (datetime.now(timezone.utc) + timedelta(days=9)).isoformat()}, "departure", "DEPARTURE_TOO_FAR"),
+        ({"departure": (datetime.now(UTC) + timedelta(days=9)).isoformat()}, "departure", "DEPARTURE_TOO_FAR"),
         ({"load_lb": -5}, "load_lb", "INVALID_INPUT"),
         ({"load_lb": 90_000}, "load_lb", "INVALID_INPUT"),
         ({"load_lb": "heavy"}, "load_lb", "INVALID_INPUT"),
@@ -152,7 +152,9 @@ def test_upstream_failure_is_503_with_message(client, body, monkeypatch):
     monkeypatch.setattr(services, "get_router", lambda: FakeRouter())
 
     def boom(*a, **k):
-        raise UpstreamError("WEATHER_UNAVAILABLE", "The weather service is unavailable right now. Try again in a minute.")
+        raise UpstreamError(
+            "WEATHER_UNAVAILABLE", "The weather service is unavailable right now. Try again in a minute."
+        )
 
     monkeypatch.setattr(services, "fetch_hourly", boom)
     r = client.post("/api/plan", body, format="json")
@@ -163,7 +165,7 @@ def test_upstream_failure_is_503_with_message(client, body, monkeypatch):
 def test_heatmap_shape(client, monkeypatch):
     monkeypatch.setattr(services, "fetch_hourly", fake_weather(wind=40.0))
     line = [[-97.0, 35.0], [-97.0, 36.0], [-96.5, 37.0]]
-    dep = datetime.now(timezone.utc) + timedelta(hours=1)
+    dep = datetime.now(UTC) + timedelta(hours=1)
     r = client.post("/api/heatmap", {"lines": [line], "departure": dep.isoformat(), "load_lb": 45_000}, format="json")
     assert r.status_code == 200, r.content
     data = r.json()

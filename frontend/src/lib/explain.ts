@@ -1,5 +1,6 @@
-import type { PlanResponse, RoutePlan, RuleKey } from '../types'
-import { formatDuration, formatMiles } from './format'
+import type { Checkpoint, PlanResponse, RoutePlan, RuleKey } from '../types'
+import { formatDuration, formatMiles, formatNumber } from './format'
+import { riskLabel } from './risk'
 
 const RULE_FIELD: Record<RuleKey, (r: RoutePlan) => number> = {
   no_travel_miles: (r) => r.miles_by_level.no_travel,
@@ -61,4 +62,18 @@ export function riskSummary(r: RoutePlan): { level: RoutePlan['worst_level']; te
   if (m.high > 0) return { level: 'high', text: `${formatMiles(m.high)} High` }
   if (m.moderate > 0) return { level: 'moderate', text: `${formatMiles(m.moderate)} Moderate` }
   return { level: 'low', text: 'Low risk all the way' }
+}
+
+export function weatherLine(cp: Checkpoint) {
+  const w = cp.weather
+  const gust = w.gust_mph != null ? ` (gusts ${formatNumber(w.gust_mph)})` : ''
+  return `Wind ${formatNumber(w.wind_mph)} mph${gust}, rain ${formatNumber(w.rain_in_hr, 2)} in/hr, snow ${formatNumber(w.snow_in_hr, 2)} in/hr`
+}
+
+export function causeLine(cp: Checkpoint, loadLb: number) {
+  if (cp.risk.level === 'low') return ''
+  const parts = cp.risk.causes.map((c) => c[0].toUpperCase() + c.slice(1))
+  let s = `${riskLabel(cp.risk.level)} because of ${parts.join(' and ').toLowerCase()}`
+  if (cp.risk.load_raised) s += `, raised by the ${formatNumber(loadLb)} lb load`
+  return s + '.'
 }

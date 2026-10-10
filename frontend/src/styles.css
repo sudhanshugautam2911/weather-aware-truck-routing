@@ -55,6 +55,7 @@ input,
 select {
   font: inherit;
   color: inherit;
+  touch-action: manipulation;
 }
 
 :focus-visible {

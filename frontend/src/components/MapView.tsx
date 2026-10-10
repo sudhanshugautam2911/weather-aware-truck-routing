@@ -9,12 +9,11 @@ import MapGL, {
   type MapLayerMouseEvent,
   type MapRef,
 } from 'react-map-gl/maplibre'
-import { riskSummary } from '../lib/explain'
+import { causeLine, riskSummary } from '../lib/explain'
 import { formatDayHour, formatDayTime, formatDuration, formatMiles, formatNumber } from '../lib/format'
 import { boundsOf, labelPoints, positionAt } from '../lib/geometry'
 import { RISK_LEVELS } from '../lib/risk'
 import type { HeatmapResponse, PlanResponse, RiskKey } from '../types'
-import { causeLine } from './CheckpointList'
 import { RiskChip } from './RiskChip'
 import { Shield } from './Shield'
 
@@ -24,6 +23,8 @@ const STYLE = 'https://tiles.openfreemap.org/styles/positron'
 const INK = '#1b2026'
 const ROUTE_IDLE = '#7d8790'
 const RISK_KEYS = RISK_LEVELS.map((r) => r.key)
+
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const levelColor = (prop: unknown) => [
   'match',
@@ -62,7 +63,7 @@ export function MapView({
     const narrow = window.innerWidth < 900
     mapRef.current.fitBounds(boundsOf(plan.routes), {
       padding: { top: 50, left: 50, right: 50, bottom: narrow ? 150 : 190 },
-      duration: 900,
+      duration: reduceMotion() ? 0 : 900,
     })
   }, [plan])
 
@@ -70,7 +71,7 @@ export function MapView({
   useEffect(() => {
     if (focusedCp === null || !selectedRoute || !mapRef.current) return
     const cp = selectedRoute.checkpoints[focusedCp]
-    if (cp) mapRef.current.easeTo({ center: [cp.lon, cp.lat], zoom: Math.max(mapRef.current.getZoom(), 7), duration: 600 })
+    if (cp) mapRef.current.easeTo({ center: [cp.lon, cp.lat], zoom: Math.max(mapRef.current.getZoom(), 7), duration: reduceMotion() ? 0 : 600 })
   }, [focusedCp, selectedRoute])
 
   const shieldAt = useMemo(() => (plan ? labelPoints(plan.routes) : {}), [plan])

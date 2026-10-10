@@ -1,6 +1,6 @@
 """WeatherAPI.com source: parsing, bulk fallback, and the source chain."""
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
@@ -9,7 +9,7 @@ from core.forecast import HourlySeries
 from providers import weather
 
 START = date(2026, 10, 11)
-T0 = datetime(2026, 10, 11, tzinfo=timezone.utc)
+T0 = datetime(2026, 10, 11, tzinfo=UTC)
 
 
 def wa_query(hours=3, precip=0.2, snow_cm=0.0, wind=12.0):

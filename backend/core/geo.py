@@ -10,6 +10,7 @@ from __future__ import annotations
 import bisect
 import math
 from dataclasses import dataclass
+from itertools import pairwise
 
 EARTH_RADIUS_M = 6_371_008.8  # mean Earth radius (IUGG)
 METERS_PER_MILE = 1609.344
@@ -78,7 +79,7 @@ def fill_between_anchors(
     seg = [0.0] + [haversine_m(lats[i - 1], lons[i - 1], lats[i], lons[i]) for i in range(1, n)]
     cum_m = [0.0] * n
     cum_s = [0.0] * n
-    for (i0, m0, s0), (i1, m1, s1) in zip(anchors, anchors[1:]):
+    for (i0, m0, s0), (i1, m1, s1) in pairwise(anchors):
         geo_total = sum(seg[i0 + 1 : i1 + 1])
         acc = 0.0
         for j in range(i0, i1 + 1):

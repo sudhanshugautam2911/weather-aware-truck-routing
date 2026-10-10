@@ -16,7 +16,7 @@ import json
 import os
 import re
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import django
@@ -38,7 +38,9 @@ TRIPS = [
 ]
 LOAD_LB = 38_000
 OUT = Path(__file__).parent / "results"
-nws = httpx.Client(timeout=30, headers={"User-Agent": "weather-aware-truck-routing accuracy check", "Accept": "application/geo+json"})
+nws = httpx.Client(
+    timeout=30, headers={"User-Agent": "weather-aware-truck-routing accuracy check", "Accept": "application/geo+json"}
+)
 
 
 def _dt(s: str) -> datetime:
@@ -105,13 +107,19 @@ def cross_check(plan: dict, cache: dict) -> list[dict]:
             if theirs is None:
                 continue
             ours = cp["weather"]["wind_mph"]
-            rows.append({"ours_mph": ours, "nws_mph": round(theirs, 1), "same_level": classify_wind(ours) == classify_wind(theirs)})
+            rows.append(
+                {
+                    "ours_mph": ours,
+                    "nws_mph": round(theirs, 1),
+                    "same_level": classify_wind(ours) == classify_wind(theirs),
+                }
+            )
     return rows
 
 
 def main() -> None:
-    depart = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(minute=0, second=0, microsecond=0)
-    out = {"generated_at": datetime.now(timezone.utc).isoformat(), "departure": depart.isoformat(), "trips": []}
+    depart = (datetime.now(UTC) + timedelta(hours=2)).replace(minute=0, second=0, microsecond=0)
+    out = {"generated_at": datetime.now(UTC).isoformat(), "departure": depart.isoformat(), "trips": []}
     nws_cache: dict = {}
     eta_rows, wind_rows = [], []
     for origin, dest in TRIPS:
@@ -140,13 +148,21 @@ def main() -> None:
     out["summary"] = {
         "routing_provider": get_router().name,
         "eta_points_compared": len(eta_rows),
-        "eta_mean_abs_error_min": round(sum(abs(r["error_min"]) for r in eta_rows) / len(eta_rows), 2) if eta_rows else None,
+        "eta_mean_abs_error_min": round(sum(abs(r["error_min"]) for r in eta_rows) / len(eta_rows), 2)
+        if eta_rows
+        else None,
         "eta_mean_abs_error_pct": round(
             100 * sum(abs(r["error_min"]) / r["provider_min"] for r in eta_rows) / len(eta_rows), 2
-        ) if eta_rows else None,
+        )
+        if eta_rows
+        else None,
         "wind_points_compared": len(wind_rows),
-        "wind_mae_vs_nws_mph": round(sum(abs(r["ours_mph"] - r["nws_mph"]) for r in wind_rows) / len(wind_rows), 2) if wind_rows else None,
-        "wind_same_level_pct": round(100 * sum(r["same_level"] for r in wind_rows) / len(wind_rows), 1) if wind_rows else None,
+        "wind_mae_vs_nws_mph": round(sum(abs(r["ours_mph"] - r["nws_mph"]) for r in wind_rows) / len(wind_rows), 2)
+        if wind_rows
+        else None,
+        "wind_same_level_pct": round(100 * sum(r["same_level"] for r in wind_rows) / len(wind_rows), 1)
+        if wind_rows
+        else None,
         "recommendation_same_at_all_intervals": sum(
             len({t["sampling"][i]["recommended"] for i in (10, 25, 50)}) == 1 for t in out["trips"]
         ),

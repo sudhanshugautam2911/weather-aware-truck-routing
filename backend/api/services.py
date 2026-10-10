@@ -6,7 +6,8 @@ import logging
 import math
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+from itertools import pairwise
 
 from core.errors import AppError
 from core.forecast import HOUR, ForecastRangeError, MissingWeatherError, floor_hour, sample_at
@@ -48,8 +49,8 @@ class Place:
 
 
 def validate_trip(origin: Place, destination: Place, departure: datetime) -> datetime:
-    now = datetime.now(timezone.utc)
-    departure = departure.astimezone(timezone.utc)
+    now = datetime.now(UTC)
+    departure = departure.astimezone(UTC)
     if departure < now - PAST_GRACE:
         raise AppError(
             "DEPARTURE_IN_PAST",
@@ -59,7 +60,8 @@ def validate_trip(origin: Place, destination: Place, departure: datetime) -> dat
     if departure > now + MAX_DEPARTURE_AHEAD:
         raise AppError(
             "DEPARTURE_TOO_FAR",
-            "Pick a departure within the next 7 days. Forecasts further out are not reliable enough to judge road risk.",
+            "Pick a departure within the next 7 days. "
+            "Forecasts further out are not reliable enough to judge road risk.",
             field="departure",
         )
     if haversine_m(origin.lat, origin.lon, destination.lat, destination.lon) < METERS_PER_MILE:
@@ -138,7 +140,7 @@ def find_routes(origin: Place, destination: Place, depart: datetime, load_lb: fl
 
 
 def _iso(dt: datetime) -> str:
-    return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    return dt.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _geometry(line: RouteLine) -> dict:
@@ -172,7 +174,7 @@ def plan_trip(origin: Place, destination: Place, departure: datetime, load_lb: f
 
     out_routes, summaries = [], []
     k = 0
-    for idx, (route, spots) in enumerate(zip(routes, spots_by_route)):
+    for idx, (route, spots) in enumerate(zip(routes, spots_by_route, strict=True)):
         route_id = ROUTE_LETTERS[idx]
         checkpoints, segments = [], []
         for s in spots:
@@ -256,7 +258,8 @@ def plan_trip(origin: Place, destination: Place, departure: datetime, load_lb: f
         warnings.append(
             {
                 "code": "FEWER_ROUTES",
-                "message": f"Only {len(routes)} different route{'s' if len(routes) != 1 else ''} exist between these places.",
+                "message": f"Only {len(routes)} different route{'' if len(routes) == 1 else 's'} "
+                "exist between these places.",
             }
         )
     if all(s.miles(Risk.NO_TRAVEL) > 0 for s in summaries):
@@ -285,7 +288,7 @@ def plan_trip(origin: Place, destination: Place, departure: datetime, load_lb: f
             "routing_provider": router.name,
             "truck_aware": router.truck_aware,
             "weather_sources": [SOURCE_LABELS.get(s, s) for s in sources],
-            "generated_at": _iso(datetime.now(timezone.utc)),
+            "generated_at": _iso(datetime.now(UTC)),
             "timings_ms": {
                 "routing": round((t_route - t0) * 1000),
                 "weather": round((t_weather - t_route) * 1000),
@@ -310,7 +313,7 @@ def _corridor_cells(lines: list[list[tuple[float, float]]], step: float) -> set[
     buffer_km = max(CORRIDOR_KM, step_km * 0.75)
     cells: set[tuple[int, int]] = set()
     for pts in lines:
-        for (lon1, lat1), (lon2, lat2) in zip(pts, pts[1:]):
+        for (lon1, lat1), (lon2, lat2) in pairwise(pts):
             seg_km = haversine_m(lat1, lon1, lat2, lon2) / 1000
             n = max(1, int(seg_km / (step_km / 2)))
             for j in range(n + 1):
@@ -354,7 +357,7 @@ def build_heatmap(lines: list[list[tuple[float, float]]], departure: datetime, l
     hours = [start + h * HOUR for h in range(HEATMAP_HOURS + 1)]
     out_cells = []
     fields = ("risk", "wind", "rain", "snow", "wind_risk", "rain_risk", "snow_risk")
-    for (lat, lon), s in zip(points, series):
+    for (lat, lon), s in zip(points, series, strict=True):
         cell = {name: [] for name in fields}
         for t in hours:
             try:

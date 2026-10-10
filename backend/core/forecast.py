@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 HOUR = timedelta(hours=1)
 
@@ -50,7 +50,7 @@ class WeatherSample:
 def floor_hour(dt: datetime) -> datetime:
     if dt.tzinfo is None:
         raise ValueError("datetimes must be timezone-aware")
-    dt = dt.astimezone(timezone.utc)
+    dt = dt.astimezone(UTC)
     return dt.replace(minute=0, second=0, microsecond=0)
 
 
@@ -62,7 +62,7 @@ def _value(arr: list[float | None], i: int, what: str) -> float:
 
 
 def sample_at(series: HourlySeries, eta: datetime) -> WeatherSample:
-    eta = eta.astimezone(timezone.utc)
+    eta = eta.astimezone(UTC)
     hours = (eta - series.start) / HOUR
     wind_i = int(math.floor(hours + 0.5))
     precip_i = int(math.floor(hours)) + 1

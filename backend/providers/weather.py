@@ -10,11 +10,12 @@ precipitation stored at the END of its hour.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import logging
 import re
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
 from django.conf import settings
 
@@ -51,7 +52,7 @@ def _round(lat: float, lon: float) -> tuple[float, float]:
 
 def _cache_key(lat: float, lon: float, start: date, end: date, model: str) -> str:
     # Forecasts refresh at most hourly, so the current UTC hour is part of the key.
-    run = datetime.now(timezone.utc).strftime("%Y%m%d%H")
+    run = datetime.now(UTC).strftime("%Y%m%d%H")
     return f"om:{model}:{lat:.3f}:{lon:.3f}:{start.isoformat()}:{end.isoformat()}:{run}"
 
 
@@ -69,13 +70,11 @@ def _to_series(block: dict, start: date) -> HourlySeries | None:
                 "The weather service sent data in unexpected units. Try again later.",
             )
     h = block["hourly"]
-    first = datetime.fromisoformat(h["time"][0]).replace(tzinfo=timezone.utc)
-    expected_first = datetime(start.year, start.month, start.day, tzinfo=timezone.utc)
+    first = datetime.fromisoformat(h["time"][0]).replace(tzinfo=UTC)
+    expected_first = datetime(start.year, start.month, start.day, tzinfo=UTC)
     if first != expected_first:
         raise UpstreamError("WEATHER_BAD_DATA", "The weather service sent data for the wrong hours. Try again later.")
-    rain = [
-        None if r is None or s is None else round(r + s, 3) for r, s in zip(h["rain"], h["showers"])
-    ]
+    rain = [None if r is None or s is None else round(r + s, 3) for r, s in zip(h["rain"], h["showers"], strict=True)]
     return HourlySeries(
         start=first,
         wind_mph=h["wind_speed_10m"],
@@ -118,10 +117,8 @@ def _fetch_chunk(points: list[tuple[float, float]], start: date, end: date, mode
         resp = request("POST", base, service="weather", data=data, retries=3, backoff_s=1.0)
         if resp.status_code != 200:
             reason = ""
-            try:
+            with contextlib.suppress(ValueError):
                 reason = resp.json().get("reason", "")
-            except ValueError:
-                pass
             if "no data is available" in reason.lower():
                 # A lone point outside this model's area: no data, the backup model fills it.
                 return [None] * len(points)
@@ -142,7 +139,7 @@ def _fetch_chunk(points: list[tuple[float, float]], start: date, end: date, mode
 
 
 def forecast_window_end() -> date:
-    return datetime.now(timezone.utc).date() + timedelta(days=MAX_FORECAST_DAY)
+    return datetime.now(UTC).date() + timedelta(days=MAX_FORECAST_DAY)
 
 
 # --------------------------------------------------------------------------
@@ -166,14 +163,14 @@ def _weatherapi_series(query: dict, start: date, n_hours: int) -> HourlySeries |
     """
     if "error" in query or "forecast" not in query:
         return None
-    origin = datetime(start.year, start.month, start.day, tzinfo=timezone.utc)
+    origin = datetime(start.year, start.month, start.day, tzinfo=UTC)
     wind = [None] * n_hours
     gust = [None] * n_hours
     rain = [None] * n_hours
     snow = [None] * n_hours
     for day in query["forecast"].get("forecastday", []):
         for h in day.get("hour", []):
-            t = datetime.fromtimestamp(h["time_epoch"], timezone.utc)
+            t = datetime.fromtimestamp(h["time_epoch"], UTC)
             i = int((t - origin) / timedelta(hours=1))
             if not 0 <= i < n_hours:
                 continue
@@ -192,7 +189,7 @@ _bulk_supported = True
 
 def _weatherapi_days(end: date) -> int:
     # Days counted in the location's own calendar from today; +2 covers time zones.
-    return max(1, min(14, (end - datetime.now(timezone.utc).date()).days + 2))
+    return max(1, min(14, (end - datetime.now(UTC).date()).days + 2))
 
 
 def _weatherapi_check(resp) -> dict:
@@ -211,10 +208,15 @@ def _fetch_weatherapi(points: list[tuple[float, float]], start: date, end: date)
     params = {"key": key, "days": _weatherapi_days(end), "aqi": "no", "alerts": "no"}
 
     if _bulk_supported:
+
         def bulk(chunk_start: int) -> list[HourlySeries | None]:
             chunk = points[chunk_start : chunk_start + WEATHERAPI_BULK]
-            body = {"locations": [{"q": f"{lat:.4f},{lon:.4f}", "custom_id": str(i)} for i, (lat, lon) in enumerate(chunk)]}
-            resp = request("POST", WEATHERAPI_URL, service="weather", params={**params, "q": "bulk"}, json=body, retries=2)
+            body = {
+                "locations": [{"q": f"{lat:.4f},{lon:.4f}", "custom_id": str(i)} for i, (lat, lon) in enumerate(chunk)]
+            }
+            resp = request(
+                "POST", WEATHERAPI_URL, service="weather", params={**params, "q": "bulk"}, json=body, retries=2
+            )
             data = _weatherapi_check(resp)
             if resp.status_code != 200 or "bulk" not in data:
                 raise LookupError("bulk not available")
@@ -237,7 +239,9 @@ def _fetch_weatherapi(points: list[tuple[float, float]], start: date, end: date)
 
     def single(point: tuple[float, float]) -> HourlySeries | None:
         lat, lon = point
-        resp = request("GET", WEATHERAPI_URL, service="weather", params={**params, "q": f"{lat:.4f},{lon:.4f}"}, retries=2)
+        resp = request(
+            "GET", WEATHERAPI_URL, service="weather", params={**params, "q": f"{lat:.4f},{lon:.4f}"}, retries=2
+        )
         data = _weatherapi_check(resp)
         if resp.status_code != 200:
             return None  # e.g. location not found: leave it to the next source
@@ -273,12 +277,14 @@ def _fetch_model(points: list[tuple[float, float]], start: date, end: date, mode
                 results = list(pool.map(lambda c: _fetch_chunk(c, start, end, model), chunks))
             fetched = [s for part in results for s in part]
         fresh = {}
-        for p, s in zip(missing, fetched):
+        for p, s in zip(missing, fetched, strict=True):
             found[p] = s
             if s is not None:
                 fresh[keys[p]] = s
         cache.set_many(fresh, timeout=3600)
-    log.info("weather %s: %d points, %d cached, %d fetched", model, len(points), len(points) - len(missing), len(missing))
+    log.info(
+        "weather %s: %d points, %d cached, %d fetched", model, len(points), len(points) - len(missing), len(missing)
+    )
     return found
 
 
@@ -295,7 +301,7 @@ def _fill(primary: HourlySeries | None, backup: HourlySeries | None) -> HourlySe
         return primary or backup
 
     def merge(a, b):
-        return [x if x is not None else y for x, y in zip(a, b)]
+        return [x if x is not None else y for x, y in zip(a, b, strict=True)]
 
     return HourlySeries(
         start=primary.start,
@@ -318,14 +324,14 @@ def fetch_hourly(
     Results come back in the order of `points`. With `with_sources=True`, also
     returns the list of sources that actually supplied data.
     """
-    start_utc = start_utc.astimezone(timezone.utc)
-    end_utc = end_utc.astimezone(timezone.utc)
+    start_utc = start_utc.astimezone(UTC)
+    end_utc = end_utc.astimezone(UTC)
     start = start_utc.date()
     # +1 h: the precipitation for an ETA late in an hour is stored at the next hour.
     end = (end_utc + timedelta(hours=1)).date()
     if end > forecast_window_end():
         end = forecast_window_end()
-    origin = datetime(start.year, start.month, start.day, tzinfo=timezone.utc)
+    origin = datetime(start.year, start.month, start.day, tzinfo=UTC)
     lo = int((start_utc - origin) // timedelta(hours=1))
     hi = int((end_utc - origin) // timedelta(hours=1)) + 2
 

@@ -12,6 +12,12 @@ export function RankingTable({ plan }: { plan: PlanResponse }) {
     <details className="disclosure section">
       <summary>Why this route?</summary>
       <div>
+        {rec.decided_by === 'duration' && (
+          <p className="tie-note">All routes have the same weather risk, so the fastest one is recommended.</p>
+        )}
+        {rec.decided_by === null && ids.length > 1 && (
+          <p className="tie-note">The routes tie on every rule, so any of them is equally good.</p>
+        )}
         <p className="hint" style={{ marginBottom: 10 }}>
           Routes are compared rule by rule, top to bottom. The first rule that separates two routes decides between
           them. Average risk scores Low as 0 and No Travel as 4, weighted by miles.
@@ -31,13 +37,19 @@ export function RankingTable({ plan }: { plan: PlanResponse }) {
             </thead>
             <tbody>
               {rec.rules.map((rule) => {
-                const min = Math.min(...ids.map((id) => rule.values[id]))
+                const values = ids.map((id) => rule.values[id])
+                const min = Math.min(...values)
+                // A row where every route has the same value has no winner: show it plain.
+                const tied = values.every((v) => v === min)
                 const isDecider = rec.decided_by === rule.key
                 return (
-                  <tr key={rule.key} className={isDecider ? 'decider' : undefined}>
-                    <td>{rule.label}</td>
+                  <tr key={rule.key} className={isDecider ? 'decider' : tied ? 'tied' : undefined}>
+                    <td>
+                      {rule.label}
+                      {tied && ids.length > 1 && <span className="tie-tag"> (tie)</span>}
+                    </td>
                     {ids.map((id) => (
-                      <td key={id} className={rule.values[id] === min && ids.length > 1 ? 'best' : undefined}>
+                      <td key={id} className={!tied && rule.values[id] === min ? 'best' : undefined}>
                         {fmt(rule.key, rule.values[id])}
                       </td>
                     ))}

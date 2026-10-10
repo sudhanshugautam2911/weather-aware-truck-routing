@@ -1094,3 +1094,22 @@ details.disclosure > div {
     display: none;
   }
 }
+
+.tie-note {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--sign-tint);
+  color: var(--ink);
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+tr.tied td {
+  color: var(--ink-3);
+}
+
+.tie-tag {
+  color: var(--ink-3);
+  font-weight: 400;
+}

@@ -38,7 +38,7 @@ class FakeRouter(Router):
 def fake_weather(stormy_lon=None, wind=10.0):
     """Calm everywhere, except a 50 mph wind on the route at `stormy_lon`."""
 
-    def fetch(points, start, end):
+    def fetch(points, start, end, with_sources=False):
         start_h = start.replace(minute=0, second=0, microsecond=0)
         start_h = datetime(start_h.year, start_h.month, start_h.day, tzinfo=timezone.utc)
         n = int((end - start_h).total_seconds() // 3600) + 30
@@ -46,7 +46,7 @@ def fake_weather(stormy_lon=None, wind=10.0):
         for lat, lon in points:
             w = 50.0 if stormy_lon is not None and abs(lon - stormy_lon) < 1e-6 else wind
             out.append(HourlySeries(start_h, [w] * n, [w + 5] * n, [0.0] * n, [0.0] * n))
-        return out
+        return (out, ["fake"]) if with_sources else out
 
     return fetch
 

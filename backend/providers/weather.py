@@ -1,4 +1,12 @@
-"""Open-Meteo hourly forecast client: chunked, parallel, cached, unit-checked."""
+"""Hourly weather at many points, from a chain of sources.
+
+Sources are tried in order (WEATHER_MODELS). Each later source only fills the
+points and hours the earlier ones could not provide, and a source that fails
+entirely is skipped. Default chain: WeatherAPI.com (fast, no per-minute limit)
+-> Open-Meteo NBM -> Open-Meteo global. Every source is normalised to the same
+HourlySeries: UTC hours, wind in mph, rain and snow in inches per hour, with
+precipitation stored at the END of its hour.
+"""
 
 from __future__ import annotations
 
@@ -137,31 +145,149 @@ def forecast_window_end() -> date:
     return datetime.now(timezone.utc).date() + timedelta(days=MAX_FORECAST_DAY)
 
 
+# --------------------------------------------------------------------------
+# WeatherAPI.com
+# --------------------------------------------------------------------------
+
+WEATHERAPI_URL = "https://api.weatherapi.com/v1/forecast.json"
+WEATHERAPI_BULK = 50  # locations per bulk request
+WEATHERAPI_WORKERS = 12
+CM_PER_INCH = 2.54
+SNOW_TO_WATER = 10  # 10 in of snow ~ 1 in of water (standard ratio)
+
+
+def _weatherapi_series(query: dict, start: date, n_hours: int) -> HourlySeries | None:
+    """One location's forecast -> HourlySeries aligned to `start` 00:00 UTC.
+
+    WeatherAPI's hourly precipitation lines up with Open-Meteo's at the same
+    timestamp (checked against NBM on the wettest US points: best correlation at
+    zero shift), so it is stored at the same index. `precip_in` is rain plus
+    melted snow; the rain part is what is left after the snow's water.
+    """
+    if "error" in query or "forecast" not in query:
+        return None
+    origin = datetime(start.year, start.month, start.day, tzinfo=timezone.utc)
+    wind = [None] * n_hours
+    gust = [None] * n_hours
+    rain = [None] * n_hours
+    snow = [None] * n_hours
+    for day in query["forecast"].get("forecastday", []):
+        for h in day.get("hour", []):
+            t = datetime.fromtimestamp(h["time_epoch"], timezone.utc)
+            i = int((t - origin) / timedelta(hours=1))
+            if not 0 <= i < n_hours:
+                continue
+            snow_in = (h.get("snow_cm") or 0.0) / CM_PER_INCH
+            wind[i] = float(h["wind_mph"])
+            gust[i] = float(h["gust_mph"]) if h.get("gust_mph") is not None else None
+            snow[i] = round(snow_in, 3)
+            rain[i] = round(max(0.0, (h.get("precip_in") or 0.0) - snow_in / SNOW_TO_WATER), 3)
+    if all(v is None for v in wind):
+        return None
+    return HourlySeries(start=origin, wind_mph=wind, gust_mph=gust, rain_in=rain, snow_in=snow)
+
+
+_bulk_supported = True
+
+
+def _weatherapi_days(end: date) -> int:
+    # Days counted in the location's own calendar from today; +2 covers time zones.
+    return max(1, min(14, (end - datetime.now(timezone.utc).date()).days + 2))
+
+
+def _weatherapi_check(resp) -> dict:
+    if resp.status_code in (401, 403):
+        raise UpstreamError("WEATHER_NOT_CONFIGURED", "The backup weather key was rejected.")
+    try:
+        return resp.json()
+    except ValueError:
+        raise UpstreamError("WEATHER_BAD_DATA", "The weather service sent unreadable data.") from None
+
+
+def _fetch_weatherapi(points: list[tuple[float, float]], start: date, end: date) -> list[HourlySeries | None]:
+    global _bulk_supported
+    key = settings.WEATHERAPI_KEY
+    n_hours = ((end - start).days + 1) * 24
+    params = {"key": key, "days": _weatherapi_days(end), "aqi": "no", "alerts": "no"}
+
+    if _bulk_supported:
+        def bulk(chunk_start: int) -> list[HourlySeries | None]:
+            chunk = points[chunk_start : chunk_start + WEATHERAPI_BULK]
+            body = {"locations": [{"q": f"{lat:.4f},{lon:.4f}", "custom_id": str(i)} for i, (lat, lon) in enumerate(chunk)]}
+            resp = request("POST", WEATHERAPI_URL, service="weather", params={**params, "q": "bulk"}, json=body, retries=2)
+            data = _weatherapi_check(resp)
+            if resp.status_code != 200 or "bulk" not in data:
+                raise LookupError("bulk not available")
+            out: list[HourlySeries | None] = [None] * len(chunk)
+            for item in data["bulk"]:
+                q = item.get("query", {})
+                i = int(q.get("custom_id", -1))
+                if 0 <= i < len(chunk):
+                    out[i] = _weatherapi_series(q, start, n_hours)
+            return out
+
+        try:
+            starts = list(range(0, len(points), WEATHERAPI_BULK))
+            with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(starts))) as pool:
+                parts = list(pool.map(bulk, starts))
+            return [s for part in parts for s in part]
+        except LookupError:
+            log.info("weatherapi bulk requests unavailable on this plan; using single requests")
+            _bulk_supported = False
+
+    def single(point: tuple[float, float]) -> HourlySeries | None:
+        lat, lon = point
+        resp = request("GET", WEATHERAPI_URL, service="weather", params={**params, "q": f"{lat:.4f},{lon:.4f}"}, retries=2)
+        data = _weatherapi_check(resp)
+        if resp.status_code != 200:
+            return None  # e.g. location not found: leave it to the next source
+        return _weatherapi_series(data, start, n_hours)
+
+    with ThreadPoolExecutor(max_workers=WEATHERAPI_WORKERS) as pool:
+        return list(pool.map(single, points))
+
+
+# --------------------------------------------------------------------------
+# Source chain
+# --------------------------------------------------------------------------
+
+SOURCE_LABELS = {
+    "weatherapi": "WeatherAPI.com",
+    "ncep_nbm_conus": "Open-Meteo (NWS National Blend of Models)",
+    "best_match": "Open-Meteo",
+}
+
+
 def _fetch_model(points: list[tuple[float, float]], start: date, end: date, model: str) -> dict:
-    """{point: HourlySeries} for one model, served from cache where possible."""
+    """{point: HourlySeries | None} from one source, served from cache where possible."""
     keys = {p: _cache_key(p[0], p[1], start, end, model) for p in points}
     cached = cache.get_many(list(keys.values()))
     found = {p: cached[keys[p]] for p in points if keys[p] in cached}
     missing = [p for p in points if p not in found]
     if missing:
-        chunks = [missing[i : i + CHUNK_SIZE] for i in range(0, len(missing), CHUNK_SIZE)]
-        with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(chunks))) as pool:
-            results = list(pool.map(lambda c: _fetch_chunk(c, start, end, model), chunks))
+        if model == "weatherapi":
+            fetched = _fetch_weatherapi(missing, start, end)
+        else:
+            chunks = [missing[i : i + CHUNK_SIZE] for i in range(0, len(missing), CHUNK_SIZE)]
+            with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(chunks))) as pool:
+                results = list(pool.map(lambda c: _fetch_chunk(c, start, end, model), chunks))
+            fetched = [s for part in results for s in part]
         fresh = {}
-        for chunk, series_list in zip(chunks, results):
-            for p, s in zip(chunk, series_list):
-                found[p] = s
-                if s is not None:
-                    fresh[keys[p]] = s
+        for p, s in zip(missing, fetched):
+            found[p] = s
+            if s is not None:
+                fresh[keys[p]] = s
         cache.set_many(fresh, timeout=3600)
     log.info("weather %s: %d points, %d cached, %d fetched", model, len(points), len(points) - len(missing), len(missing))
     return found
 
 
-def _has_gaps(s: HourlySeries | None) -> bool:
+def _has_gaps(s: HourlySeries | None, lo: int = 0, hi: int | None = None) -> bool:
+    """Missing values between hour indices lo..hi (inclusive): the hours the trip needs."""
     if s is None:
         return True
-    return any(v is None for arr in (s.wind_mph, s.rain_in, s.snow_in) for v in arr)
+    hi = len(s) - 1 if hi is None else min(hi, len(s) - 1)
+    return any(arr[i] is None for arr in (s.wind_mph, s.rain_in, s.snow_in) for i in range(lo, hi + 1))
 
 
 def _fill(primary: HourlySeries | None, backup: HourlySeries | None) -> HourlySeries | None:
@@ -180,34 +306,56 @@ def _fill(primary: HourlySeries | None, backup: HourlySeries | None) -> HourlySe
     )
 
 
-def fetch_hourly(points: list[tuple[float, float]], start_utc: datetime, end_utc: datetime) -> list[HourlySeries]:
+def weather_sources() -> list[str]:
+    return [m.strip() for m in getattr(settings, "WEATHER_MODELS", "best_match").split(",") if m.strip()]
+
+
+def fetch_hourly(
+    points: list[tuple[float, float]], start_utc: datetime, end_utc: datetime, *, with_sources: bool = False
+):
     """Hourly series for each point, covering at least start_utc .. end_utc (+1 h).
 
-    Uses the primary model (NBM by default: it scored best in our backtest) and
-    fills any hours it lacks, such as points outside the lower 48 states, from
-    the next model in WEATHER_MODELS. Results come back in the order of `points`.
+    Results come back in the order of `points`. With `with_sources=True`, also
+    returns the list of sources that actually supplied data.
     """
-    models = [m.strip() for m in getattr(settings, "WEATHER_MODELS", "best_match").split(",") if m.strip()]
-    start = start_utc.astimezone(timezone.utc).date()
+    start_utc = start_utc.astimezone(timezone.utc)
+    end_utc = end_utc.astimezone(timezone.utc)
+    start = start_utc.date()
     # +1 h: the precipitation for an ETA late in an hour is stored at the next hour.
-    end = (end_utc.astimezone(timezone.utc) + timedelta(hours=1)).date()
+    end = (end_utc + timedelta(hours=1)).date()
     if end > forecast_window_end():
         end = forecast_window_end()
+    origin = datetime(start.year, start.month, start.day, tzinfo=timezone.utc)
+    lo = int((start_utc - origin) // timedelta(hours=1))
+    hi = int((end_utc - origin) // timedelta(hours=1)) + 2
 
     rounded = [_round(lat, lon) for lat, lon in points]
     unique = list(dict.fromkeys(rounded))
-    series = _fetch_model(unique, start, end, models[0])
-    for backup_model in models[1:]:
-        gappy = [p for p in unique if _has_gaps(series[p])]
-        if not gappy:
+    series: dict = {p: None for p in unique}
+    used: list[str] = []
+    last_error: UpstreamError | None = None
+    for source in weather_sources():
+        need = [p for p in unique if _has_gaps(series[p], lo, hi)]
+        if not need:
             break
-        backup = _fetch_model(gappy, start, end, backup_model)
-        for p in gappy:
-            series[p] = _fill(series[p], backup[p])
-    if any(series[p] is None for p in unique):
+        try:
+            got = _fetch_model(need, start, end, source)
+        except UpstreamError as exc:
+            log.warning("weather source %s failed (%s); trying the next one", source, exc.code)
+            last_error = exc
+            continue
+        if any(got[p] is not None for p in need):
+            used.append(source)
+        for p in need:
+            series[p] = _fill(series[p], got[p])
+
+    if any(_has_gaps(series[p], lo, hi) for p in unique):
+        if all(series[p] is None for p in unique) and last_error is not None:
+            raise last_error
         raise AppError(
             "NO_WEATHER_COVERAGE",
-            "Forecasts aren't available for part of this trip. Try places on land within North America.",
+            "Forecasts aren't available for part of this trip. Try places on land, or an earlier departure.",
             status=422,
         )
-    return [series[p] for p in rounded]
+    result = [series[p] for p in rounded]
+    return (result, used) if with_sources else result

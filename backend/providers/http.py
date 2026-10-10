@@ -28,6 +28,7 @@ def request(
     service: str,
     params=None,
     data=None,
+    json=None,
     retries: int = 2,
     backoff_s: float = 0.7,
 ) -> httpx.Response:
@@ -40,7 +41,7 @@ def request(
     last_status = None
     for attempt in range(retries + 1):
         try:
-            resp = _client.request(method, url, params=params, data=data)
+            resp = _client.request(method, url, params=params, data=data, json=json)
         except httpx.TimeoutException:
             log.warning("%s timed out (attempt %d)", service, attempt + 1)
             last_status = "timeout"

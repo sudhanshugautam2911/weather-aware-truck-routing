@@ -57,9 +57,14 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 TOMTOM_API_KEY = os.environ.get("TOMTOM_API_KEY", "")
 # Truck speed cap used for drive times (typical fleet speed governor).
 TRUCK_MAX_SPEED_MPH = float(os.environ.get("TRUCK_MAX_SPEED_MPH", "65"))
-# First model is primary; later ones fill its gaps. NBM (NWS National Blend of
-# Models) scored best in our 30-day backtest; see accuracy/results.
-WEATHER_MODELS = os.environ.get("WEATHER_MODELS", "ncep_nbm_conus,best_match")
+WEATHERAPI_KEY = os.environ.get("WEATHERAPI_KEY", "")
+# Weather sources, in order; each later one fills what the earlier ones lack.
+# WeatherAPI.com first (fast, no per-minute limit), then Open-Meteo's NBM model
+# (best in our 30-day backtest; see accuracy/results), then Open-Meteo global.
+WEATHER_MODELS = os.environ.get(
+    "WEATHER_MODELS",
+    ("weatherapi," if WEATHERAPI_KEY else "") + "ncep_nbm_conus,best_match",
+)
 OPEN_METEO_URL = os.environ.get("OPEN_METEO_URL", "https://api.open-meteo.com/v1/forecast")
 
 LOGGING = {

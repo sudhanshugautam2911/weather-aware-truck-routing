@@ -11,6 +11,13 @@ const METRICS: { key: HeatMetric; label: string }[] = [
   { key: 'snow_risk', label: 'Snow' },
 ]
 
+const METRIC_HINT: Record<HeatMetric, string> = {
+  risk: 'Colour shows the overall risk. Dots show where each truck is at this hour',
+  wind_risk: 'Colour shows wind risk. Darker squares are windier',
+  rain_risk: 'Colour shows rain risk. Darker squares are wetter',
+  snow_risk: 'Colour shows snow risk. Darker squares have more snow',
+}
+
 export function TimeBar({
   hours,
   hour,
@@ -120,7 +127,7 @@ export function TimeBar({
               </span>
             ))}
           </div>
-          <span className="hint">Moving dots show where each truck is at this hour</span>
+          <span className="hint">{METRIC_HINT[metric]}</span>
         </div>
       )}
     </div>

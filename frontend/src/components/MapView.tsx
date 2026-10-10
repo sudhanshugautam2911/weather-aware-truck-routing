@@ -123,6 +123,9 @@ export function MapView({
           props[`wind_risk${h}`] = c.wind_risk[h]
           props[`rain_risk${h}`] = c.rain_risk[h]
           props[`snow_risk${h}`] = c.snow_risk[h]
+          props[`wind${h}`] = c.wind[h]
+          props[`rain${h}`] = c.rain[h]
+          props[`snow${h}`] = c.snow[h]
         }
         return {
           type: 'Feature',
@@ -146,16 +149,24 @@ export function MapView({
   }, [heat])
 
   const heatProp = ['get', `${metric}${hour}`]
-  const heatPaint = useMemo(
-    () => ({
+  const heatPaint = useMemo(() => {
+    // "All": colour = overall risk; calm cells stay faint so risky areas stand out.
+    // Wind / Rain / Snow: colour = that condition's risk level, and the square gets
+    // darker the stronger the weather, so the views differ even when all is Low.
+    const raw = (name: string) => ['coalesce', ['get', `${name}${hour}`], 0]
+    const strength: Record<HeatMetric, unknown> = {
+      risk: ['match', heatProp, 0, 0.16, 1, 0.42, 2, 0.5, 3, 0.55, 4, 0.6, 0],
+      wind_risk: ['interpolate', ['linear'], raw('wind'), 0, 0.04, 10, 0.16, 25, 0.42, 45, 0.55, 60, 0.65],
+      rain_risk: ['interpolate', ['linear'], raw('rain'), 0, 0, 0.005, 0.12, 0.1, 0.42, 0.5, 0.55, 1, 0.65],
+      snow_risk: ['interpolate', ['linear'], raw('snow'), 0, 0, 0.05, 0.14, 0.5, 0.42, 2, 0.55, 3, 0.65],
+    }
+    return {
       'fill-color': levelColor(heatProp),
-      // Calm cells stay faint so the map and the risky areas read clearly.
-      'fill-opacity': ['match', heatProp, 0, 0.16, 1, 0.42, 2, 0.5, 3, 0.55, 4, 0.6, 0],
+      'fill-opacity': ['case', ['==', heatProp, null], 0, strength[metric]],
       'fill-outline-color': 'rgba(255,255,255,0.35)',
-    }),
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [metric, hour],
-  )
+  }, [metric, hour])
 
   const onMove = (e: MapLayerMouseEvent) => {
     const cp = e.features?.find((x) => x.layer.id === 'checkpoints')
@@ -365,7 +376,7 @@ export function MapView({
         )
       })()}
       {hover && hoverCell && heat && !focused && !hoverCp && (
-        <Popup longitude={hover.lng} latitude={hover.lat} closeButton={false} anchor="top" offset={14} maxWidth="260px">
+        <Popup longitude={hover.lng} latitude={hover.lat} closeButton={false} anchor="bottom" offset={14} maxWidth="260px">
           <div className="popup">
             <h3>{formatDayHour(heat.hours[hour])}</h3>
             {hoverCell.risk[hour] == null ? (

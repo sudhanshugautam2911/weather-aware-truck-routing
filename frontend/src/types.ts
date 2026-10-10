@@ -63,8 +63,7 @@ export interface PlanResponse {
     interval_mi: number
     routing_provider: string
     truck_aware: boolean
-    weather_source: string
-    weather_models: string[]
+    weather_sources: string[]
     generated_at: string
     timings_ms: Record<string, number>
   }
@@ -86,6 +85,7 @@ export interface HeatmapResponse {
   step: number
   hours: string[]
   cells: HeatmapCell[]
+  weather_sources: string[]
 }
 
 export interface TripInput {

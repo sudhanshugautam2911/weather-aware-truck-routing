@@ -30,7 +30,8 @@ TomTom truck routing ──► 3 routes (polyline + distance and drive time alon
 checkpoints every N miles + destination ──► ETA = departure + drive time to that point
         │
         ▼
-Open-Meteo hourly forecast (NBM model) at each checkpoint, for the hour of its ETA
+hourly forecast at each checkpoint for the hour of its ETA
+        (WeatherAPI.com; Open-Meteo NBM fills anything it lacks or takes over if it fails)
         │
         ▼
 risk = worst of wind (after load rules), rain, snow
@@ -60,7 +61,8 @@ All of this lives in one small pure-Python module, [`backend/core/risk.py`](back
 | "Average risk" | Low 0 … No Travel 4, averaged **by miles** | Long stretches count more than short ones |
 | Miles at each level | Each checkpoint covers the road halfway to its neighbours | Miles add up exactly to the route length |
 | Which forecast hour for an ETA | Wind: the nearest hour. Rain/snow: the hour that contains the ETA | Open-Meteo stores rain/snow at the **end** of each hour (14:00 = 13:00–14:00), so 13:40 uses 14:00 |
-| Rain | `rain + showers` | Open-Meteo's `rain` alone leaves out shower rain and would under-count risk |
+| Rain | Open-Meteo: `rain + showers`. WeatherAPI: total precipitation minus the water in its snow (10:1) | Open-Meteo's `rain` alone leaves out shower rain; WeatherAPI's total includes melted snow |
+| Weather source | WeatherAPI.com first, then Open-Meteo NBM, then Open-Meteo global | WeatherAPI has no per-minute limit, so reviewers never see "too many requests". Each later source only fills hours or places the earlier one lacks |
 | Wind | Sustained 10 m wind for the rules; gusts shown as extra info | The table says "wind"; sustained is the standard measure |
 | Checkpoint spacing | User picks 10 / 25 / 50 mi (default 25) | The brief lists all three |
 | Heatmap hour 0 | The departure hour | The slider follows the trip, not the clock |
@@ -82,7 +84,7 @@ Accuracy has two parts, so it is reported in two parts.
 | Checkpoints: exact spacing, on the route, ETA at constant speed, **miles add up exactly** for random route lengths | All pass |
 | ETA → forecast-hour matching, time zones, gaps in data | All pass |
 | API: validation messages, upstream failures, end-to-end plan with fake providers | All pass |
-| **Total** | **121 backend tests, 100% branch coverage of the risk engine** (`core/` overall 95%) |
+| **Total** | **132 backend tests, 100% branch coverage of the risk engine** (`core/` overall 95%) |
 
 ### 2. Outside data: measured
 
@@ -106,6 +108,15 @@ Honest limits of the backtest:
 - Rain at an exact place and hour is hard to forecast. Showers are often a little early or late, or a few miles off.
 - No snow fell in this 30-day window, and stations don't measure snowfall per hour, so snow was not tested in inches.
 
+**Weather source used by the app.** The backtest above chose NBM as the most accurate model, and NBM stays in
+the chain. For a public demo, though, reliability matters too: Open-Meteo's free tier allows 600 locations per minute,
+and a single trip with its heatmap can use ~300–450. So the app asks **WeatherAPI.com** first (no per-minute limit,
+~1.5 s per trip) and falls back to Open-Meteo NBM automatically. Checks on WeatherAPI:
+- Wind vs. NBM at 20 US places × 4 hours: **2.9 mph average difference, same risk level at 100%** (calm day).
+- Hour alignment: on the 12 wettest US points, WeatherAPI's hourly precipitation matches NBM's best at **zero
+  shift** (correlation 0.42 vs 0.39 / 0.40 at ±1 h), so both sources use the same "value at the end of its hour" rule.
+- WeatherAPI doesn't publish past forecasts, so it can't be backtested the way NBM was. That is the trade-off.
+
 **Live checks** ([`backend/accuracy/checks.py`](backend/accuracy/checks.py), 4 long US trips, TomTom truck routing):
 
 | Check | Result |
@@ -128,7 +139,7 @@ Results are saved in [`backend/accuracy/results/`](backend/accuracy/results/).
 | Backend | Python 3.12+, Django 6.1, Django REST Framework, httpx |
 | Frontend | React 19, TypeScript, Vite 8, MapLibre GL (WebGL map) via react-map-gl |
 | Routing + place search | TomTom (truck profile with weight). Without a key, a free demo router (OSRM) and geocoder (Photon) are used so the app still runs |
-| Weather | Open-Meteo, NBM model (no key) |
+| Weather | WeatherAPI.com (free key) first; Open-Meteo NBM (no key) fills gaps and is the automatic fallback |
 | Map tiles | OpenFreeMap (no key) |
 | Database | None. Nothing is stored. Forecasts are cached for 1 hour (in memory, or Redis if `REDIS_URL` is set) |
 | Hosting | Vercel: static frontend + Django as a Python function, one domain |
@@ -146,7 +157,7 @@ backend/
   providers/   TomTom / OSRM routing, place search, Open-Meteo client (chunking, retries, cache, unit checks)
   api/         Django REST endpoints + trip planning service
   accuracy/    backtest and live checks; results/ holds the numbers above
-  tests/       121 tests
+  tests/       132 tests
 frontend/
   src/components/   form, place search, results, ranking table, map, time slider
   src/lib/          formatting, plain-language explanations, geometry
@@ -198,7 +209,7 @@ cd backend && .venv/bin/python -m accuracy.checks
 ## Deploy (Vercel)
 
 1. Import the GitHub repo in Vercel (framework preset: **Other**; `vercel.json` sets the build).
-2. Environment variables: `TOMTOM_API_KEY`, `DJANGO_SECRET_KEY` (any long random string), `DJANGO_DEBUG=0`,
+2. Environment variables: `TOMTOM_API_KEY`, `WEATHERAPI_KEY`, `DJANGO_SECRET_KEY` (any long random string), `DJANGO_DEBUG=0`,
    optional `REDIS_URL` (Upstash, free) so all function instances share the forecast cache.
 3. Deploy. The frontend is served from `frontend/dist`, and `/api/*` goes to the Django function.
 

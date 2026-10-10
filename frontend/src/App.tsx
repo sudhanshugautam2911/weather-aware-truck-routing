@@ -232,13 +232,14 @@ export default function App() {
 
         <footer className="footer">
           <p>
-            Weather: <a href="https://open-meteo.com/">Open-Meteo</a> (CC BY 4.0). Map:{' '}
+            Weather: <a href="https://www.weatherapi.com/">WeatherAPI.com</a> and{' '}
+            <a href="https://open-meteo.com/">Open-Meteo</a> (CC BY 4.0). Map:{' '}
             <a href="https://openfreemap.org/">OpenFreeMap</a>, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>.
           </p>
           {plan && (
             <p>
-              Routing: {plan.meta.truck_aware ? 'TomTom truck routing' : 'OSRM demo (car)'}. Forecast model:{' '}
-              {plan.meta.weather_models[0] === 'ncep_nbm_conus' ? 'NWS National Blend of Models' : plan.meta.weather_models[0]}.
+              Routing: {plan.meta.truck_aware ? 'TomTom truck routing' : 'OSRM demo (car)'}. Forecast:{' '}
+              {plan.meta.weather_sources.join(', then ')}.
               Checked {formatDayTime(plan.meta.generated_at)}.
             </p>
           )}

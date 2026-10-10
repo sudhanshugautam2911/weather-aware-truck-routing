@@ -8,8 +8,6 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from django.conf import settings
-
 from core.errors import AppError
 from core.forecast import HOUR, ForecastRangeError, MissingWeatherError, floor_hour, sample_at
 from core.geo import (
@@ -22,7 +20,7 @@ from core.geo import (
 )
 from core.risk import RANKING_RULES, Risk, assess, deciding_rule, rank_routes, ranking_values, summarize
 from providers.routing import ProviderRoute, get_router
-from providers.weather import fetch_hourly, forecast_window_end
+from providers.weather import SOURCE_LABELS, fetch_hourly, forecast_window_end
 
 log = logging.getLogger(__name__)
 
@@ -169,7 +167,7 @@ def plan_trip(origin: Place, destination: Place, departure: datetime, load_lb: f
         )
 
     all_points = [(s.lat, s.lon) for spots in spots_by_route for s in spots]
-    series = fetch_hourly(all_points, depart, latest)
+    series, sources = fetch_hourly(all_points, depart, latest, with_sources=True)
     t_weather = time.perf_counter()
 
     out_routes, summaries = [], []
@@ -286,8 +284,7 @@ def plan_trip(origin: Place, destination: Place, departure: datetime, load_lb: f
             "interval_mi": interval_mi,
             "routing_provider": router.name,
             "truck_aware": router.truck_aware,
-            "weather_source": "Open-Meteo",
-            "weather_models": [m.strip() for m in settings.WEATHER_MODELS.split(",") if m.strip()],
+            "weather_sources": [SOURCE_LABELS.get(s, s) for s in sources],
             "generated_at": _iso(datetime.now(timezone.utc)),
             "timings_ms": {
                 "routing": round((t_route - t0) * 1000),
@@ -352,7 +349,7 @@ def build_heatmap(lines: list[list[tuple[float, float]]], departure: datetime, l
 
     start = floor_hour(departure)
     end = start + timedelta(hours=HEATMAP_HOURS)
-    series = fetch_hourly(points, start, end)
+    series, sources = fetch_hourly(points, start, end, with_sources=True)
 
     hours = [start + h * HOUR for h in range(HEATMAP_HOURS + 1)]
     out_cells = []
@@ -375,4 +372,9 @@ def build_heatmap(lines: list[list[tuple[float, float]]], departure: datetime, l
             cell["rain_risk"].append(int(a.rain))
             cell["snow_risk"].append(int(a.snow))
         out_cells.append({"lat": round(lat, 4), "lon": round(lon, 4), **cell})
-    return {"step": step, "hours": [_iso(t) for t in hours], "cells": out_cells}
+    return {
+        "step": step,
+        "hours": [_iso(t) for t in hours],
+        "cells": out_cells,
+        "weather_sources": [SOURCE_LABELS.get(s, s) for s in sources],
+    }

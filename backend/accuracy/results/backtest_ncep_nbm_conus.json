@@ -1,0 +1,112 @@
+{
+  "lead_1_day": {
+    "hours_compared": 16655,
+    "stations": 24,
+    "model": "ncep_nbm_conus",
+    "period": "2026-09-09 to 2026-10-08",
+    "wind_mae_mph": 2.73,
+    "wind_within_5mph_pct": 85.9,
+    "wind_level_match_pct": 99.5,
+    "wind_level_match_by_observed": {
+      "Low": {
+        "hours": 16548,
+        "match_pct": 99.9
+      },
+      "Moderate": {
+        "hours": 101,
+        "match_pct": 44.6
+      },
+      "High": {
+        "hours": 5,
+        "match_pct": 0.0
+      },
+      "Severe": {
+        "hours": 1,
+        "match_pct": 0.0
+      }
+    },
+    "rain_level_match_pct": 97.9,
+    "rain_level_match_by_observed": {
+      "Low": {
+        "hours": 16429,
+        "match_pct": 99.2
+      },
+      "Moderate": {
+        "hours": 150,
+        "match_pct": 12.0
+      },
+      "High": {
+        "hours": 57,
+        "match_pct": 3.5
+      },
+      "Severe": {
+        "hours": 14,
+        "match_pct": 0.0
+      },
+      "No Travel": {
+        "hours": 5,
+        "match_pct": 0.0
+      }
+    },
+    "rain_yes_no_accuracy_pct": 90.2,
+    "rain_detection_pct": 72.1,
+    "rain_false_alarm_pct": 69.0,
+    "snow_yes_no_accuracy_pct": 100.0,
+    "snow_hours_observed": 0
+  },
+  "lead_2_day": {
+    "hours_compared": 16655,
+    "stations": 24,
+    "model": "ncep_nbm_conus",
+    "period": "2026-09-09 to 2026-10-08",
+    "wind_mae_mph": 2.89,
+    "wind_within_5mph_pct": 84.0,
+    "wind_level_match_pct": 99.5,
+    "wind_level_match_by_observed": {
+      "Low": {
+        "hours": 16548,
+        "match_pct": 99.9
+      },
+      "Moderate": {
+        "hours": 101,
+        "match_pct": 36.6
+      },
+      "High": {
+        "hours": 5,
+        "match_pct": 0.0
+      },
+      "Severe": {
+        "hours": 1,
+        "match_pct": 0.0
+      }
+    },
+    "rain_level_match_pct": 98.2,
+    "rain_level_match_by_observed": {
+      "Low": {
+        "hours": 16429,
+        "match_pct": 99.5
+      },
+      "Moderate": {
+        "hours": 150,
+        "match_pct": 4.0
+      },
+      "High": {
+        "hours": 57,
+        "match_pct": 0.0
+      },
+      "Severe": {
+        "hours": 14,
+        "match_pct": 0.0
+      },
+      "No Travel": {
+        "hours": 5,
+        "match_pct": 0.0
+      }
+    },
+    "rain_yes_no_accuracy_pct": 89.6,
+    "rain_detection_pct": 62.6,
+    "rain_false_alarm_pct": 72.3,
+    "snow_yes_no_accuracy_pct": 100.0,
+    "snow_hours_observed": 0
+  }
+}

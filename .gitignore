@@ -1,0 +1,21 @@
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Secrets
+.env
+backend/.env
+
+# Tools
+.vercel/
+.DS_Store
+backend/accuracy/results/raw/

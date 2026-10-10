@@ -1,0 +1,2650 @@
+{
+  "generated_at": "2026-10-10T09:07:04.524510+00:00",
+  "departure": "2026-10-10T11:00:00+00:00",
+  "trips": [
+    {
+      "trip": "Chicago, IL to Denver, CO",
+      "sampling": {
+        "10": {
+          "A": {
+            "checkpoints": 103,
+            "miles_by_level": {
+              "low": 1019.6,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.5,
+            "max_rain_in_hr": 0.0
+          },
+          "B": {
+            "checkpoints": 118,
+            "miles_by_level": {
+              "low": 1165.0,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 19.7,
+            "max_rain_in_hr": 0.0
+          },
+          "C": {
+            "checkpoints": 135,
+            "miles_by_level": {
+              "low": 1328.3,
+              "moderate": 10.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 25.1,
+            "max_rain_in_hr": 0.0
+          },
+          "recommended": "A"
+        },
+        "25": {
+          "A": {
+            "checkpoints": 42,
+            "miles_by_level": {
+              "low": 1019.6,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.5,
+            "max_rain_in_hr": 0.0
+          },
+          "B": {
+            "checkpoints": 48,
+            "miles_by_level": {
+              "low": 1165.0,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 18.3,
+            "max_rain_in_hr": 0.0
+          },
+          "C": {
+            "checkpoints": 55,
+            "miles_by_level": {
+              "low": 1313.3,
+              "moderate": 25.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 25.1,
+            "max_rain_in_hr": 0.0
+          },
+          "recommended": "A"
+        },
+        "50": {
+          "A": {
+            "checkpoints": 22,
+            "miles_by_level": {
+              "low": 1019.6,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.5,
+            "max_rain_in_hr": 0.0
+          },
+          "B": {
+            "checkpoints": 25,
+            "miles_by_level": {
+              "low": 1165.0,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 17.7,
+            "max_rain_in_hr": 0.0
+          },
+          "C": {
+            "checkpoints": 28,
+            "miles_by_level": {
+              "low": 1288.3,
+              "moderate": 50.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 25.1,
+            "max_rain_in_hr": 0.0
+          },
+          "recommended": "A"
+        }
+      },
+      "eta_check": [
+        {
+          "mile": 250.0,
+          "our_eta_min": 234.6,
+          "provider_min": 234.8,
+          "error_min": -0.2,
+          "same_road": true
+        },
+        {
+          "mile": 510.0,
+          "our_eta_min": 473.9,
+          "provider_min": 474.2,
+          "error_min": -0.3,
+          "same_road": true
+        },
+        {
+          "mile": 770.0,
+          "our_eta_min": 713.4,
+          "provider_min": 714.2,
+          "error_min": -0.8,
+          "same_road": true
+        }
+      ],
+      "wind_cross_check": [
+        {
+          "ours_mph": 7.8,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.9,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.8,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.4,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.4,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.3,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.2,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.1,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.3,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.7,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.1,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.4,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.1,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.4,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.4,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.0,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.0,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.0,
+          "nws_mph": 23.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.9,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.4,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.0,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.8,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.3,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.9,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.2,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.2,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.1,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.5,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.4,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.0,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.5,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.0,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.8,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.1,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.2,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.2,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.1,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.5,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.4,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.3,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.1,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.3,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.6,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.6,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.1,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.2,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.8,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.8,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.1,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.2,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.4,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.8,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.3,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.7,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.6,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.0,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.1,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.3,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.4,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.7,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.6,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.4,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.6,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.2,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.8,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.8,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.8,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.8,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.4,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.4,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.1,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.3,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.7,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.9,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.3,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.6,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.8,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.1,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.7,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.2,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.4,
+          "nws_mph": 24.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 22.6,
+          "nws_mph": 24.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 22.8,
+          "nws_mph": 24.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.9,
+          "nws_mph": 23.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.0,
+          "nws_mph": 24.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 25.1,
+          "nws_mph": 26.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.7,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 22.4,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.1,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.9,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.4,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.7,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.5,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.1,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.0,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.7,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.1,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.9,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.3,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.2,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.8,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.6,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.7,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.2,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.8,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.7,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.7,
+          "nws_mph": 4.6,
+          "same_level": true
+        }
+      ]
+    },
+    {
+      "trip": "Dallas, TX to Atlanta, GA",
+      "sampling": {
+        "10": {
+          "A": {
+            "checkpoints": 80,
+            "miles_by_level": {
+              "low": 784.5,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.9,
+            "max_rain_in_hr": 0.071
+          },
+          "C": {
+            "checkpoints": 98,
+            "miles_by_level": {
+              "low": 969.5,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 17.0,
+            "max_rain_in_hr": 0.091
+          },
+          "B": {
+            "checkpoints": 85,
+            "miles_by_level": {
+              "low": 823.3,
+              "moderate": 13.3,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.7,
+            "max_rain_in_hr": 0.15
+          },
+          "recommended": "A"
+        },
+        "25": {
+          "A": {
+            "checkpoints": 33,
+            "miles_by_level": {
+              "low": 784.5,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.7,
+            "max_rain_in_hr": 0.059
+          },
+          "C": {
+            "checkpoints": 40,
+            "miles_by_level": {
+              "low": 969.5,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 16.1,
+            "max_rain_in_hr": 0.071
+          },
+          "B": {
+            "checkpoints": 35,
+            "miles_by_level": {
+              "low": 787.5,
+              "moderate": 49.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.0,
+            "max_rain_in_hr": 0.15
+          },
+          "recommended": "A"
+        },
+        "50": {
+          "A": {
+            "checkpoints": 17,
+            "miles_by_level": {
+              "low": 784.5,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.7,
+            "max_rain_in_hr": 0.051
+          },
+          "C": {
+            "checkpoints": 21,
+            "miles_by_level": {
+              "low": 969.5,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 16.1,
+            "max_rain_in_hr": 0.071
+          },
+          "B": {
+            "checkpoints": 18,
+            "miles_by_level": {
+              "low": 818.3,
+              "moderate": 18.3,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 22.1,
+            "max_rain_in_hr": 0.15
+          },
+          "recommended": "A"
+        }
+      },
+      "eta_check": [
+        {
+          "mile": 200.0,
+          "our_eta_min": 189.3,
+          "provider_min": 189.3,
+          "error_min": 0.0,
+          "same_road": true
+        },
+        {
+          "mile": 400.0,
+          "our_eta_min": 374.8,
+          "provider_min": 374.7,
+          "error_min": 0.1,
+          "same_road": true
+        },
+        {
+          "mile": 600.0,
+          "our_eta_min": 559.0,
+          "provider_min": 559.0,
+          "error_min": -0.0,
+          "same_road": true
+        }
+      ],
+      "wind_cross_check": [
+        {
+          "ours_mph": 0.0,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.6,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.0,
+          "nws_mph": 0.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.7,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.6,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.7,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.1,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.1,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.5,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.4,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.0,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.1,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.0,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 23.9,
+          "nws_mph": 24.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.8,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.2,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.0,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.5,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.0,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.2,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.0,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.7,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.8,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.3,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.9,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.1,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.7,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.0,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.6,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.0,
+          "nws_mph": 0.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.7,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.6,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.9,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.1,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.8,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.9,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.0,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.4,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.7,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.2,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.7,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.8,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.9,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.1,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.8,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.5,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.1,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.1,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.1,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.0,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.8,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.0,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.0,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.8,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.3,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.4,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.6,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.7,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.9,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.0,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.2,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.9,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.0,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.4,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.8,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.5,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.9,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.0,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.0,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.9,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.1,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.9,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.5,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.8,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.9,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.7,
+          "nws_mph": 23.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.5,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.9,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.2,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.0,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.9,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.8,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.8,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.2,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.3,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.6,
+          "nws_mph": 15.0,
+          "same_level": true
+        }
+      ]
+    },
+    {
+      "trip": "Seattle, WA to Salt Lake City, UT",
+      "sampling": {
+        "10": {
+          "A": {
+            "checkpoints": 86,
+            "miles_by_level": {
+              "low": 843.2,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 21.3,
+            "max_rain_in_hr": 0.071
+          },
+          "B": {
+            "checkpoints": 103,
+            "miles_by_level": {
+              "low": 997.1,
+              "moderate": 20.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 25.9,
+            "max_rain_in_hr": 0.15
+          },
+          "C": {
+            "checkpoints": 108,
+            "miles_by_level": {
+              "low": 1016.5,
+              "moderate": 50.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 30.0,
+            "max_rain_in_hr": 0.051
+          },
+          "recommended": "A"
+        },
+        "25": {
+          "A": {
+            "checkpoints": 35,
+            "miles_by_level": {
+              "low": 843.2,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 18.8,
+            "max_rain_in_hr": 0.02
+          },
+          "B": {
+            "checkpoints": 42,
+            "miles_by_level": {
+              "low": 992.1,
+              "moderate": 25.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 25.1,
+            "max_rain_in_hr": 0.091
+          },
+          "C": {
+            "checkpoints": 44,
+            "miles_by_level": {
+              "low": 1016.5,
+              "moderate": 50.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 28.9,
+            "max_rain_in_hr": 0.031
+          },
+          "recommended": "A"
+        },
+        "50": {
+          "A": {
+            "checkpoints": 18,
+            "miles_by_level": {
+              "low": 843.2,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 17.7,
+            "max_rain_in_hr": 0.02
+          },
+          "B": {
+            "checkpoints": 22,
+            "miles_by_level": {
+              "low": 1017.1,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 23.0,
+            "max_rain_in_hr": 0.091
+          },
+          "C": {
+            "checkpoints": 23,
+            "miles_by_level": {
+              "low": 1016.5,
+              "moderate": 50.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 28.9,
+            "max_rain_in_hr": 0.012
+          },
+          "recommended": "A"
+        }
+      },
+      "eta_check": [
+        {
+          "mile": 210.0,
+          "our_eta_min": 196.0,
+          "provider_min": 196.5,
+          "error_min": -0.5,
+          "same_road": true
+        },
+        {
+          "mile": 430.0,
+          "our_eta_min": 399.8,
+          "provider_min": 400.1,
+          "error_min": -0.3,
+          "same_road": true
+        },
+        {
+          "mile": 640.0,
+          "our_eta_min": 593.3,
+          "provider_min": 594.0,
+          "error_min": -0.7,
+          "same_road": true
+        }
+      ],
+      "wind_cross_check": [
+        {
+          "ours_mph": 4.3,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.4,
+          "nws_mph": 0.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.8,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.9,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.7,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.5,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.1,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.8,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.7,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.5,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.3,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.6,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.9,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.0,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.1,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.7,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.8,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.4,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.0,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.3,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.7,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.1,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.1,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.1,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.0,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.0,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.6,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.1,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.3,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.4,
+          "nws_mph": 0.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.8,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.9,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.9,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.9,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.0,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.5,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.4,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.0,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.8,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.1,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.9,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.9,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.9,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 0.7,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.2,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.8,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.5,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.4,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.2,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.9,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.4,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 25.9,
+          "nws_mph": 19.6,
+          "same_level": false
+        },
+        {
+          "ours_mph": 22.1,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.1,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.3,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.7,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.8,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.3,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.2,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.4,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.8,
+          "nws_mph": 23.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.6,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.3,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.1,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 3.8,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.8,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.7,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.6,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.3,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.9,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.0,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.8,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.6,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.7,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.8,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.8,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.2,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.3,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.1,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.6,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.9,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.0,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.6,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.6,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.9,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.0,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.0,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.7,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.3,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.1,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.4,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.9,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.0,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.7,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.0,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 27.7,
+          "nws_mph": 26.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 28.2,
+          "nws_mph": 27.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.7,
+          "nws_mph": 21.9,
+          "same_level": true
+        }
+      ]
+    },
+    {
+      "trip": "Oklahoma City, OK to Minneapolis, MN",
+      "sampling": {
+        "10": {
+          "A": {
+            "checkpoints": 90,
+            "miles_by_level": {
+              "low": 884.0,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 19.7,
+            "max_rain_in_hr": 0.0
+          },
+          "B": {
+            "checkpoints": 94,
+            "miles_by_level": {
+              "low": 926.8,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 22.4,
+            "max_rain_in_hr": 0.0
+          },
+          "C": {
+            "checkpoints": 114,
+            "miles_by_level": {
+              "low": 1126.3,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 18.6,
+            "max_rain_in_hr": 0.0
+          },
+          "recommended": "A"
+        },
+        "25": {
+          "A": {
+            "checkpoints": 37,
+            "miles_by_level": {
+              "low": 884.0,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 20.1,
+            "max_rain_in_hr": 0.0
+          },
+          "B": {
+            "checkpoints": 39,
+            "miles_by_level": {
+              "low": 926.8,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 22.6,
+            "max_rain_in_hr": 0.0
+          },
+          "C": {
+            "checkpoints": 47,
+            "miles_by_level": {
+              "low": 1126.3,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 17.7,
+            "max_rain_in_hr": 0.0
+          },
+          "recommended": "A"
+        },
+        "50": {
+          "A": {
+            "checkpoints": 19,
+            "miles_by_level": {
+              "low": 884.0,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 19.2,
+            "max_rain_in_hr": 0.0
+          },
+          "B": {
+            "checkpoints": 20,
+            "miles_by_level": {
+              "low": 926.8,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 21.5,
+            "max_rain_in_hr": 0.0
+          },
+          "C": {
+            "checkpoints": 24,
+            "miles_by_level": {
+              "low": 1126.3,
+              "moderate": 0.0,
+              "high": 0.0,
+              "severe": 0.0,
+              "no_travel": 0.0
+            },
+            "max_wind_mph": 17.7,
+            "max_rain_in_hr": 0.0
+          },
+          "recommended": "A"
+        }
+      },
+      "eta_check": [
+        {
+          "mile": 220.0,
+          "our_eta_min": 206.3,
+          "provider_min": 206.5,
+          "error_min": -0.2,
+          "same_road": true
+        },
+        {
+          "mile": 450.0,
+          "our_eta_min": 418.1,
+          "provider_min": 396.4,
+          "error_min": 21.7,
+          "same_road": false
+        },
+        {
+          "mile": 670.0,
+          "our_eta_min": 621.0,
+          "provider_min": 558.7,
+          "error_min": 62.4,
+          "same_road": false
+        }
+      ],
+      "wind_cross_check": [
+        {
+          "ours_mph": 5.1,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.0,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.8,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.7,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.6,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.5,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.7,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.0,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.9,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.5,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.8,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.3,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.8,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.9,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.2,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.6,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.8,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.8,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.0,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.0,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.4,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.4,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.9,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.4,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.6,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.9,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.7,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.8,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.7,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.1,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.3,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.3,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.8,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.0,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.3,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.9,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.3,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.8,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.2,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.2,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.3,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.0,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.5,
+          "nws_mph": 13.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 14.8,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.9,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.3,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.7,
+          "nws_mph": 19.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.6,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.1,
+          "nws_mph": 23.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.5,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.8,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 21.7,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 19.9,
+          "nws_mph": 20.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 20.8,
+          "nws_mph": 21.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.3,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.2,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.8,
+          "nws_mph": 17.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 16.6,
+          "nws_mph": 16.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.1,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.1,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.3,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.3,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 1.8,
+          "nws_mph": 1.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.8,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.9,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.7,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.6,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.4,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.3,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.4,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.9,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 5.8,
+          "nws_mph": 4.6,
+          "same_level": true
+        },
+        {
+          "ours_mph": 2.9,
+          "nws_mph": 2.3,
+          "same_level": true
+        },
+        {
+          "ours_mph": 4.0,
+          "nws_mph": 3.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.3,
+          "nws_mph": 5.8,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.4,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 6.9,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 7.6,
+          "nws_mph": 6.9,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.4,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 9.2,
+          "nws_mph": 8.1,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.7,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 8.9,
+          "nws_mph": 9.2,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.5,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.2,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.6,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 11.0,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 12.1,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.7,
+          "nws_mph": 11.5,
+          "same_level": true
+        },
+        {
+          "ours_mph": 10.3,
+          "nws_mph": 10.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 13.6,
+          "nws_mph": 12.7,
+          "same_level": true
+        },
+        {
+          "ours_mph": 15.0,
+          "nws_mph": 15.0,
+          "same_level": true
+        },
+        {
+          "ours_mph": 17.9,
+          "nws_mph": 18.4,
+          "same_level": true
+        },
+        {
+          "ours_mph": 18.6,
+          "nws_mph": 18.4,
+          "same_level": true
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "routing_provider": "tomtom",
+    "eta_points_compared": 10,
+    "eta_mean_abs_error_min": 0.31,
+    "eta_mean_abs_error_pct": 0.08,
+    "wind_points_compared": 409,
+    "wind_mae_vs_nws_mph": 1.23,
+    "wind_same_level_pct": 99.8,
+    "recommendation_same_at_all_intervals": 4,
+    "trips": 4
+  }
+}

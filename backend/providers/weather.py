@@ -9,11 +9,11 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta, timezone
 
 from django.conf import settings
-from django.core.cache import cache
 
 from core.errors import AppError, UpstreamError
 from core.forecast import HourlySeries
 
+from . import cache
 from .http import request
 
 log = logging.getLogger(__name__)
@@ -30,11 +30,15 @@ CHUNK_SIZE = 50
 MAX_WORKERS = 4
 # Open-Meteo's free forecast reaches 16 days ahead (today + 15).
 MAX_FORECAST_DAY = 15
-COORD_DECIMALS = 3  # ~100 m; far finer than any weather model's grid
+# Weather lookups snap to a 0.02° grid (~2 km), finer than NBM's own 2.5 km grid,
+# so the forecast is unchanged (Open-Meteo returns the nearest model cell anyway).
+# Overlapping checkpoints of different routes then share one lookup, which keeps
+# each trip well inside Open-Meteo's free 600 locations per minute.
+SNAP_DEG = 0.02
 
 
 def _round(lat: float, lon: float) -> tuple[float, float]:
-    return round(lat, COORD_DECIMALS), round(lon, COORD_DECIMALS)
+    return round(round(lat / SNAP_DEG) * SNAP_DEG, 3), round(round(lon / SNAP_DEG) * SNAP_DEG, 3)
 
 
 def _cache_key(lat: float, lon: float, start: date, end: date, model: str) -> str:

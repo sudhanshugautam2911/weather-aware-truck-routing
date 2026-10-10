@@ -303,7 +303,7 @@ def plan_trip(origin: Place, destination: Place, departure: datetime, load_lb: f
 # ---------------------------------------------------------------------------
 
 LATTICE_STEPS = (0.1, 0.125, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1.0)
-MAX_CELLS = 240
+MAX_CELLS = 160
 CORRIDOR_KM = 40.0
 
 

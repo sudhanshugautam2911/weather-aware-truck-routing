@@ -27,8 +27,16 @@ WSGI_APPLICATION = "config.wsgi.application"
 # No database: the app stores nothing.
 DATABASES = {}
 
-if os.environ.get("REDIS_URL"):
-    CACHES = {"default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": os.environ["REDIS_URL"]}}
+# Shared cache across serverless instances. Vercel's Upstash integration may name it KV_URL.
+REDIS_URL = os.environ.get("REDIS_URL") or os.environ.get("KV_URL")
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {"socket_connect_timeout": 2, "socket_timeout": 2},
+        }
+    }
 else:
     CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "OPTIONS": {"MAX_ENTRIES": 20000}}}
 

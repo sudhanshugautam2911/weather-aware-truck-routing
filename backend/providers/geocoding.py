@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from urllib.parse import quote
 
 from django.conf import settings
-from django.core.cache import cache
 
 from core.errors import UpstreamError
 
+from . import cache
 from .http import request
 
 

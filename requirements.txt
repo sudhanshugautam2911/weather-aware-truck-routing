@@ -1,1 +1,5 @@
--r backend/requirements.txt
+django>=6.1,<6.2
+djangorestframework>=3.18,<3.19
+httpx>=0.28,<0.29
+python-dotenv>=1.2
+redis>=5
